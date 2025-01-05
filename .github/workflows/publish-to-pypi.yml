@@ -26,7 +26,7 @@ on:
       - 'v[0-9]+.[0-9]+.*'
 
 env:
-  PYPI_PROJECT_NAME: recoverable-async-task
+  PYPI_PROJECT_NAME: omni_pathlib
 
 jobs:
   test:
