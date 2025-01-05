@@ -52,10 +52,10 @@ class LocalPath(BasePath):
         return self.async_path.read_bytes()
 
     def read_text(self) -> str:
-        return self.path_obj.read_text()
+        return self.path_obj.read_text(encoding="utf-8")
 
     def async_read_text(self):
-        return self.async_path.read_text()
+        return self.async_path.read_text(encoding="utf-8")
 
     def write_bytes(self, data: bytes) -> None:
         self.path_obj.write_bytes(data)
@@ -64,10 +64,10 @@ class LocalPath(BasePath):
         return self.async_path.write_bytes(data)
 
     def write_text(self, data: str) -> None:
-        self.path_obj.write_text(data)
+        self.path_obj.write_text(data, encoding="utf-8")
 
     def async_write_text(self, data: str):
-        return self.async_path.write_text(data)
+        return self.async_path.write_text(data, encoding="utf-8")
 
     def delete(self) -> None:
         self.path_obj.unlink()
