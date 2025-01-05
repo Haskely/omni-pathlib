@@ -17,7 +17,7 @@
 4. 填写以下信息：
    - PyPI Project Name：本例为 `omni_pathlib`
    - Owner：本例为 `Haskely`
-   - Repository name：本例为 `omni_pathlib`
+   - Repository name：本例为 `omni-pathlib`
    - Workflow name：本例为 `publish-to-pypi.yml`
    - Environment name：
      - TestPyPI 平台填写：`testpypi`
