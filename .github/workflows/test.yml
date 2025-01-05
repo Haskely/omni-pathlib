@@ -1,0 +1,30 @@
+name: Test Package Installation and Basic Functions
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # 当发布工作流触发时也运行测试
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv and set python version
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv sync --all-extras --dev
+
+    - name: Run tests
+      run: uv run pytest tests
