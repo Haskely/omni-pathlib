@@ -1,14 +1,16 @@
-from omni_pathlib.path_like import BasePath, FileInfo
+from omni_pathlib.base_path import BasePath, FileInfo
 from pathlib import Path
 from aiopath import AsyncPath
 from datetime import datetime
 from typing import Iterator
 
+
 class LocalPath(BasePath):
     """本地路径类"""
+
     @property
     def protocol(self) -> str:
-        return 'file'
+        return "file"
 
     def __init__(self, path: str):
         super().__init__(path)
@@ -34,7 +36,9 @@ class LocalPath(BasePath):
         return FileInfo(
             size=stat.st_size,
             modified=datetime.fromtimestamp(stat.st_mtime),
-            metadata=dict((key, getattr(stat, key)) for key in dir(stat) if key.startswith('st_'))
+            metadata=dict(
+                (key, getattr(stat, key)) for key in dir(stat) if key.startswith("st_")
+            ),
         )
 
     async def async_stat(self) -> FileInfo:
@@ -42,7 +46,9 @@ class LocalPath(BasePath):
         return FileInfo(
             size=stat.st_size,
             modified=datetime.fromtimestamp(stat.st_mtime),
-            metadata=dict((key, getattr(stat, key)) for key in dir(stat) if key.startswith('st_'))
+            metadata=dict(
+                (key, getattr(stat, key)) for key in dir(stat) if key.startswith("st_")
+            ),
         )
 
     def read_bytes(self) -> bytes:
@@ -74,7 +80,7 @@ class LocalPath(BasePath):
 
     def async_delete(self):
         return self.async_path.unlink()
-    
+
     def is_dir(self) -> bool:
         return self.path_obj.is_dir()
 
@@ -92,13 +98,13 @@ class LocalPath(BasePath):
 
     def async_mkdir(self, parents: bool = False, exist_ok: bool = False):
         return self.async_path.mkdir(parents=parents, exist_ok=exist_ok)
-    
+
     def rmdir(self):
         self.path_obj.rmdir()
 
     def async_rmdir(self):
         return self.async_path.rmdir()
-    
+
     def rename(self, target: str):
         self.path_obj.rename(target)
 

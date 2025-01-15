@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from os import PathLike
 from typing import AsyncIterator, Iterator, Any, TypeVar
 from datetime import datetime
 from dataclasses import dataclass
 from omni_pathlib.utils import guess_protocol, join_paths, is_absolute_path
+
 
 @dataclass
 class FileInfo:
@@ -13,8 +13,10 @@ class FileInfo:
     modified: datetime
     metadata: dict[str, Any]
 
+
 # 在类定义前添加 TypeVar
-T = TypeVar('T', bound='BasePath')
+T = TypeVar("T", bound="BasePath")
+
 
 class BasePath(ABC):
     """路径处理器的抽象基类"""
@@ -37,17 +39,19 @@ class BasePath(ABC):
     def __truediv__(self: T, other) -> T:
         """实现路径除法运算符 /"""
         other_str = str(other)
-        
+
         # 如果other是绝对路径，检查协议是否匹配
         if is_absolute_path(other_str):
             other_protocol = guess_protocol(other_str)
             if other_protocol != self.protocol:
-                raise ValueError(f"Protocol mismatch: {self.protocol} vs {other_protocol}")
+                raise ValueError(
+                    f"Protocol mismatch: {self.protocol} vs {other_protocol}"
+                )
             return self.__class__(other_str)
-        
+
         # 对于相对路径，进行拼接
         return self.__class__(join_paths(self.path, other_str))
-    
+
     def __init__(self, path: str) -> None:
         self._path = path
 
