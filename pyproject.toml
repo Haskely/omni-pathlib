@@ -1,6 +1,6 @@
 [project]
 name = "omni_pathlib"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -15,19 +15,8 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
-
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.1.0"
-tag_format = "v$version"
-version_files = [
-    "pyproject.toml:version",
-]
-update_changelog_on_bump = true
-changelog_incremental = true
-changelog_file = "CHANGELOG.md"
 
 [dependency-groups]
 dev = [
@@ -40,5 +29,16 @@ dev = [
     "pytest-httpserver>=1.1.0",
 ]
 
+[tool.hatch.version]
+source = "vcs"
+
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider="scm"
+tag_format = "v$version"
+version_scheme = "pep440"
+update_changelog_on_bump = true
+major_version_zero = true
