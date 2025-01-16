@@ -72,6 +72,11 @@ FILE_CREDENTIALS = get_credentials_from_file(CREDENTIALS_PATH)
 CREDENTIALS = ENV_CREDENTIALS | FILE_CREDENTIALS
 DEFAULT_PROFILE_NAME = os.getenv("AWS_PROFILE", "default")
 
+# 添加默认配置，确保至少有一个可用的 profile
+if not CREDENTIALS:
+    CREDENTIALS["default"] = {}
+    logger.warning("No AWS credentials found, using empty default profile")
+
 if DEFAULT_PROFILE_NAME not in CREDENTIALS:
     first_profile_name = next(iter(CREDENTIALS.keys()))
     logger.warning(
