@@ -5,6 +5,7 @@ from omni_pathlib.providers.s3 import async_ops, sync_ops
 import aiohttp
 from curl_cffi.requests.exceptions import HTTPError
 from omni_pathlib.providers.s3.credentials import DEFAULT_PROFILE_NAME, CREDENTIALS
+from loguru import logger
 
 
 class S3Path(BasePath):
@@ -39,7 +40,10 @@ class S3Path(BasePath):
         if (
             endpoint_url := (endpoint_url or _default_profile.get("endpoint_url"))
         ) is None:
-            raise ValueError("Endpoint URL is required")
+            endpoint_url = "s3.us-east-1.amazonaws.com"
+            logger.warning(
+                f"Endpoint URL is not provided! Using default endpoint: {endpoint_url}"
+            )
 
         if (
             region_name := (region_name or _default_profile.get("region_name"))
@@ -52,14 +56,20 @@ class S3Path(BasePath):
                 aws_access_key_id or _default_profile.get("aws_access_key_id")
             )
         ) is None:
-            raise ValueError("AWS access key ID is required")
+            aws_access_key_id = ""
+            logger.warning(
+                "AWS access key ID is not provided! Using EMPTY access key ID"
+            )
 
         if (
             aws_secret_access_key := (
                 aws_secret_access_key or _default_profile.get("aws_secret_access_key")
             )
         ) is None:
-            raise ValueError("AWS secret access key is required")
+            aws_secret_access_key = ""
+            logger.warning(
+                "AWS secret access key is not provided! Using EMPTY secret access key"
+            )
 
         self.profile_name = profile_name
         self.endpoint_url = endpoint_url
