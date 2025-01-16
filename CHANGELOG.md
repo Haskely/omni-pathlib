@@ -1,3 +1,9 @@
+## v0.1.1 (2025-01-16)
+
+### Fix
+
+- **s3**: Add default profile handling for AWS credentials
+
 ## v0.1.0 (2025-01-16)
 
 ### Feat
