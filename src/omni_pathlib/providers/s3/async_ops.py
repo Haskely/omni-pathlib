@@ -1,8 +1,8 @@
 import asyncio
 import aiohttp
-import xml.etree.ElementTree as ET
 from typing import AsyncIterator
 import time
+import xmltodict
 
 from omni_pathlib.providers.s3.sign_request import sign_request
 from omni_pathlib.providers.s3.type_hints import (
@@ -13,6 +13,7 @@ from omni_pathlib.providers.s3.type_hints import (
 from omni_pathlib.utils.raise_for_status_with_text import (
     aiohttp_raise_for_status_with_text,
 )
+from urllib.parse import urlparse
 
 DEFAULT_IS_SIGN_PAYLOAD = False
 
@@ -31,7 +32,8 @@ def _prepare_request_params(
     Returns:
         tuple[str, str]: (host, uri)
     """
-    host = endpoint.replace("https://", "").replace("http://", "")
+
+    host = urlparse(endpoint).netloc
     uri = f"/{bucket}"
     if key:
         uri = f"{uri}/{key}"
@@ -142,8 +144,8 @@ async def list_objects(
     region: str,
     access_key: str,
     secret_key: str,
-    delimiter: str = None,
-    continuation_token: str = None,
+    delimiter: str | None = None,
+    continuation_token: str | None = None,
     max_keys: int = 1000,
     is_sign_payload: bool = DEFAULT_IS_SIGN_PAYLOAD,
 ) -> S3ListObjectsResponse:
@@ -195,65 +197,22 @@ async def list_objects(
         async with session.get(url, headers=signed_result["headers"]) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
-            root = ET.fromstring(xml_content)
 
-            # 使用最简单的方式解析 XML，不关心命名空间
-            result = {
-                "Name": root.find(".//{*}Name").text
-                if root.find(".//{*}Name") is not None
-                else None,
-                "Prefix": root.find(".//{*}Prefix").text
-                if root.find(".//{*}Prefix") is not None
-                else "",
-                "KeyCount": int(root.find(".//{*}KeyCount").text)
-                if root.find(".//{*}KeyCount") is not None
-                else 0,
-                "MaxKeys": int(root.find(".//{*}MaxKeys").text)
-                if root.find(".//{*}MaxKeys") is not None
-                else 0,
-                "IsTruncated": root.find(".//{*}IsTruncated").text == "true"
-                if root.find(".//{*}IsTruncated") is not None
-                else False,
-                "Contents": [],
-                "CommonPrefixes": [],
-            }
+    # 使用 xmltodict 解析 XML
+    _result = xmltodict.parse(xml_content)
+    assert len(_result) == 1, f"response should be a single dict, but got {_result}"
+    _result = _result[next(iter(_result))]
+    result: S3ListObjectsResponse = _result | {
+        "KeyCount": int(_result.get("KeyCount")),
+        "MaxKeys": int(_result.get("MaxKeys")),
+        "IsTruncated": _result.get("IsTruncated") == "true",
+    }
+    if "Contents" in result and not isinstance(result["Contents"], list):
+        result["Contents"] = [result["Contents"]]
+    if "CommonPrefixes" in result and not isinstance(result["CommonPrefixes"], list):
+        result["CommonPrefixes"] = [result["CommonPrefixes"]]
 
-            # 直接匹配 Contents 标签
-            for content in root.findall(".//{*}Contents"):
-                obj = {
-                    "Key": content.find("{*}Key").text
-                    if content.find("{*}Key") is not None
-                    else None,
-                    "LastModified": content.find("{*}LastModified").text
-                    if content.find("{*}LastModified") is not None
-                    else None,
-                    "ETag": content.find("{*}ETag").text
-                    if content.find("{*}ETag") is not None
-                    else None,
-                    "Size": int(content.find("{*}Size").text)
-                    if content.find("{*}Size") is not None
-                    else 0,
-                    "StorageClass": content.find("{*}StorageClass").text
-                    if content.find("{*}StorageClass") is not None
-                    else None,
-                }
-                result["Contents"].append(obj)
-
-            # 获取续传令牌
-            next_token = root.find(".//{*}NextContinuationToken")
-            if next_token is not None:
-                result["NextContinuationToken"] = next_token.text
-
-            # 直接匹配 CommonPrefixes 标签
-            for prefix in root.findall(".//{*}CommonPrefixes"):
-                prefix_obj = {
-                    "Prefix": prefix.find("{*}Prefix").text
-                    if prefix.find("{*}Prefix") is not None
-                    else None
-                }
-                result["CommonPrefixes"].append(prefix_obj)
-
-            return result
+    return result
 
 
 async def list_objects_iter(
@@ -263,8 +222,8 @@ async def list_objects_iter(
     region: str,
     access_key: str,
     secret_key: str,
-    delimiter: str = None,
-    continuation_token: str = None,
+    delimiter: str | None = None,
+    continuation_token: str | None = None,
     max_keys: int = 1000,
     is_sign_payload: bool = DEFAULT_IS_SIGN_PAYLOAD,
 ) -> AsyncIterator[S3ListObjectsResponse]:
@@ -286,7 +245,6 @@ async def list_objects_iter(
     Returns:
         AsyncIterator[dict]: 包含对象信息的字典
     """
-    continuation_token = None
 
     while True:
         response = await list_objects(
@@ -506,28 +464,17 @@ async def delete_objects(
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
-            root = ET.fromstring(xml_content)
 
-            result = {"Deleted": [], "Errors": []}
-
-            for deleted in root.findall(".//Deleted"):
-                key = deleted.find("Key")
-                if key is not None:
-                    result["Deleted"].append(key.text)
-
-            for error in root.findall(".//Error"):
-                error_info = {
-                    "Key": error.find("Key").text
-                    if error.find("Key") is not None
-                    else None,
-                    "Code": error.find("Code").text
-                    if error.find("Code") is not None
-                    else None,
-                    "Message": error.find("Message").text
-                    if error.find("Message") is not None
-                    else None,
-                }
-                result["Errors"].append(error_info)
+            # 使用 xmltodict 解析 XML
+            _result = xmltodict.parse(xml_content)
+            assert len(_result) == 1, (
+                f"response should be a single dict, but got {_result}"
+            )
+            result: S3DeleteResult = _result[next(iter(_result))]
+            if "Deleted" in result and not isinstance(result["Deleted"], list):
+                result["Deleted"] = [result["Deleted"]]
+            if "Error" in result and not isinstance(result["Error"], list):
+                result["Error"] = [result["Error"]]
 
             return result
 
@@ -589,14 +536,18 @@ async def create_bucket(
 
 
 if __name__ == "__main__":
-    import os
     from rich import print
     import json
+    from omni_pathlib.providers.s3.credentials import CREDENTIALS
 
-    ak = os.getenv("BASEMIND__AWS_ACCESS_KEY_ID", "")
-    sk = os.getenv("BASEMIND__AWS_SECRET_ACCESS_KEY", "")
-    endpoint = os.getenv("BASEMIND__OSS_ENDPOINT", "")
-    region = "unknown"
+    credentials = CREDENTIALS["basemind"]
+
+    print(credentials)
+
+    ak = credentials["aws_access_key_id"]
+    sk = credentials["aws_secret_access_key"]
+    endpoint = credentials["endpoint_url"]
+    region = credentials.get("region", "unknown")
     bucket = "zzx"
 
     # 定义测试路径和文件

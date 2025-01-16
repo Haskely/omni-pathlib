@@ -6,7 +6,9 @@ import os
 import hashlib
 from typing import Optional, Tuple
 
-from omni_pathlib.utils.raise_for_status_with_text import curl_cffi_raise_for_status_with_text
+from omni_pathlib.utils.raise_for_status_with_text import (
+    curl_cffi_raise_for_status_with_text,
+)
 
 
 class HttpPath(BasePath):
@@ -22,7 +24,7 @@ class HttpPath(BasePath):
             cache_dir = os.path.expanduser("~/.cache/omni_pathlib")
         self._cache_dir = LocalPath(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        
+
     def close(self):
         self.session.close()
         self.async_session.close()
@@ -108,7 +110,9 @@ class HttpPath(BasePath):
                 response.raise_for_status()
 
                 with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
-                    for chunk in response.iter_content(chunk_size=None): # UserWarning: chunk_size is ignored, there is no way to tell curl that.
+                    for chunk in response.iter_content(
+                        chunk_size=None
+                    ):  # UserWarning: chunk_size is ignored, there is no way to tell curl that.
                         f.write(chunk)
 
             # 下载完成，重命名为正式缓存文件
@@ -138,7 +142,9 @@ class HttpPath(BasePath):
         if self._supports_range(head_resp):
             # 支持断点续传的情况
             headers = {"Range": f"bytes={initial_pos}-"} if initial_pos > 0 else {}
-            response = await self.async_session.get(self.path, headers=headers, stream=True)
+            response = await self.async_session.get(
+                self.path, headers=headers, stream=True
+            )
             response.raise_for_status()
 
             with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:

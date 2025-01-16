@@ -1,4 +1,4 @@
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, NotRequired
 
 
 class S3ListObjectsContent(TypedDict):
@@ -21,6 +21,7 @@ class S3ListObjectsResponse(TypedDict):
     IsTruncated: bool
     Contents: list[S3ListObjectsContent]
     CommonPrefixes: list[S3ListObjectsCommonPrefixes]
+    NextContinuationToken: NotRequired[str]
 
 
 class S3ObjectMetadata(TypedDict):
@@ -32,4 +33,4 @@ class S3ObjectMetadata(TypedDict):
 
 class S3DeleteResult(TypedDict):
     Deleted: list[str]
-    Errors: list[dict[str, str | None]]
+    Error: list[dict[str, str | None]]

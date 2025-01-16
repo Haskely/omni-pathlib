@@ -1129,7 +1129,7 @@ wheels = [
 
 [[package]]
 name = "omni-pathlib"
-version = "0.0.2.dev6+gf4c38fb.d20250116"
+version = "0.0.2.dev7+g0851b2b.d20250116"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
@@ -1137,6 +1137,7 @@ dependencies = [
     { name = "aiopath", version = "0.7.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "curl-cffi" },
     { name = "rich" },
+    { name = "xmltodict" },
 ]
 
 [package.dev-dependencies]
@@ -1156,6 +1157,7 @@ requires-dist = [
     { name = "aiopath", specifier = ">=0.6.11" },
     { name = "curl-cffi", specifier = ">=0.7.4" },
     { name = "rich", specifier = ">=13.9.4" },
+    { name = "xmltodict", specifier = ">=0.14.2" },
 ]
 
 [package.metadata.requires-dev]

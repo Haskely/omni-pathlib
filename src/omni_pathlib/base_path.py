@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import AsyncIterator, Iterator, Any, TypeVar
+from typing import Any, AsyncIterator, Iterator, TypeVar
 from datetime import datetime
 from dataclasses import dataclass
 from omni_pathlib.utils import guess_protocol, join_paths, is_absolute_path
@@ -10,8 +10,8 @@ class FileInfo:
     """文件信息类"""
 
     size: int
-    modified: datetime
-    metadata: dict[str, Any]
+    modified: datetime | None
+    metadata: Any
 
 
 # 在类定义前添加 TypeVar

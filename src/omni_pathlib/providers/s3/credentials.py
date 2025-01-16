@@ -25,7 +25,7 @@ env_name_map = {
 
 
 def get_credentials_from_env():
-    credentials = defaultdict(dict)
+    credentials: dict[str, dict[str, str]] = defaultdict(dict)
     for key, value in os.environ.items():
         for name, suffixes in env_name_map.items():
             for suffix in suffixes:
@@ -40,7 +40,6 @@ def get_credentials_from_env():
 
 def read_config(filename):
     config = configparser.ConfigParser(allow_no_value=True)
-    config.optionxform = str
     config.read(filename)
     return {section: dict(config.items(section)) for section in config.sections()}
 

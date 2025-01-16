@@ -168,7 +168,9 @@ class S3Path(BasePath):
             size=metadata["ContentLength"],
             modified=datetime.strptime(
                 metadata["LastModified"], "%a, %d %b %Y %H:%M:%S %Z"
-            ),
+            )
+            if metadata["LastModified"]
+            else None,
             metadata=metadata,
         )
 
@@ -186,7 +188,9 @@ class S3Path(BasePath):
             size=metadata["ContentLength"],
             modified=datetime.strptime(
                 metadata["LastModified"], "%a, %d %b %Y %H:%M:%S %Z"
-            ),
+            )
+            if metadata["LastModified"]
+            else None,
             metadata=metadata,
         )
 
