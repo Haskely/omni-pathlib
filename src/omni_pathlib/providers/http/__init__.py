@@ -6,6 +6,8 @@ import os
 import hashlib
 from typing import Optional, Tuple
 
+from omni_pathlib.utils.raise_for_status_with_text import curl_cffi_raise_for_status_with_text
+
 
 class HttpPath(BasePath):
     @property
@@ -20,6 +22,10 @@ class HttpPath(BasePath):
             cache_dir = os.path.expanduser("~/.cache/omni_pathlib")
         self._cache_dir = LocalPath(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
+        
+    def close(self):
+        self.session.close()
+        self.async_session.close()
 
     def _get_cache_path(self) -> Tuple[LocalPath, LocalPath]:
         """获取缓存文件路径和临时文件路径"""
@@ -41,9 +47,8 @@ class HttpPath(BasePath):
 
     async def async_exists(self) -> bool:
         try:
-            async with self.async_session as session:
-                response = await session.head(self.path)
-                return response.status_code == 200
+            response = await self.async_session.head(self.path)
+            return response.status_code == 200
         except requests.RequestsError:
             return False
 
@@ -55,7 +60,7 @@ class HttpPath(BasePath):
 
     def stat(self) -> FileInfo:
         response = self.session.head(self.path)
-        response.raise_for_status()
+        curl_cffi_raise_for_status_with_text(response)
 
         return FileInfo(
             size=int(response.headers.get("content-length", 0)),
@@ -68,20 +73,19 @@ class HttpPath(BasePath):
         )
 
     async def async_stat(self) -> FileInfo:
-        async with self.async_session as session:
-            response = await session.head(self.path)
-            response.raise_for_status()
+        response = await self.async_session.head(self.path)
+        curl_cffi_raise_for_status_with_text(response)
 
-            return FileInfo(
-                size=int(response.headers.get("content-length", 0)),
-                modified=datetime.strptime(
-                    response.headers.get("last-modified", ""),
-                    "%a, %d %b %Y %H:%M:%S GMT",
-                )
-                if "last-modified" in response.headers
-                else datetime.now(),
-                metadata=dict(response.headers),
+        return FileInfo(
+            size=int(response.headers.get("content-length", 0)),
+            modified=datetime.strptime(
+                response.headers.get("last-modified", ""),
+                "%a, %d %b %Y %H:%M:%S GMT",
             )
+            if "last-modified" in response.headers
+            else datetime.now(),
+            metadata=dict(response.headers),
+        )
 
     def download(self) -> bytes:
         cache_path, temp_path = self._get_cache_path()
@@ -95,7 +99,7 @@ class HttpPath(BasePath):
 
         # 先发送 HEAD 请求获取文件信息
         head_resp = self.session.head(self.path)
-        head_resp.raise_for_status()
+        curl_cffi_raise_for_status_with_text(head_resp)
 
         if self._supports_range(head_resp):
             # 支持断点续传的情况
@@ -104,7 +108,7 @@ class HttpPath(BasePath):
                 response.raise_for_status()
 
                 with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
+                    for chunk in response.iter_content(chunk_size=None): # UserWarning: chunk_size is ignored, there is no way to tell curl that.
                         f.write(chunk)
 
             # 下载完成，重命名为正式缓存文件
@@ -127,30 +131,29 @@ class HttpPath(BasePath):
         # 检查是否存在未完成的下载
         initial_pos = temp_path.stat().size if temp_path.exists() else 0
 
-        async with self.async_session as session:
-            # 先发送 HEAD 请求获取文件信息
-            head_resp = await session.head(self.path)
-            head_resp.raise_for_status()
+        # 先发送 HEAD 请求获取文件信息
+        head_resp = await self.async_session.head(self.path)
+        head_resp.raise_for_status()
 
-            if self._supports_range(head_resp):
-                # 支持断点续传的情况
-                headers = {"Range": f"bytes={initial_pos}-"} if initial_pos > 0 else {}
-                response = await session.get(self.path, headers=headers, stream=True)
-                response.raise_for_status()
+        if self._supports_range(head_resp):
+            # 支持断点续传的情况
+            headers = {"Range": f"bytes={initial_pos}-"} if initial_pos > 0 else {}
+            response = await self.async_session.get(self.path, headers=headers, stream=True)
+            response.raise_for_status()
 
-                with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
-                    async for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
+            with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
+                async for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
 
-                # 下载完成，重命名为正式缓存文件
-                temp_path.rename(cache_path.path)
-                return cache_path.read_bytes()
-            else:
-                # 不支持断点续传，直接下载
-                response = await session.get(self.path)
-                response.raise_for_status()
-                cache_path.write_bytes(response.content)
-                return response.content
+            # 下载完成，重命名为正式缓存文件
+            temp_path.rename(cache_path.path)
+            return cache_path.read_bytes()
+        else:
+            # 不支持断点续传，直接下载
+            response = await self.async_session.get(self.path)
+            response.raise_for_status()
+            cache_path.write_bytes(response.content)
+            return response.content
 
     def read_bytes(self) -> bytes:
         return self.download()

@@ -23,11 +23,13 @@ source = "vcs"
 
 [dependency-groups]
 dev = [
+    "git-cliff>=2.7.0",
     "loguru>=0.7.3",
     "moto[server]>=5.0.26",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "pytest-asyncio>=0.25.1",
+    "pytest-httpserver>=1.1.0",
 ]
 
 [tool.mypy]
