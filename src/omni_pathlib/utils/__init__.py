@@ -1,4 +1,5 @@
 import os.path
+from urllib.parse import urlparse
 
 
 def is_absolute_path(path: str) -> bool:
@@ -6,15 +7,20 @@ def is_absolute_path(path: str) -> bool:
     return path.startswith(("//", "/", "http://", "https://", "s3://", "file://"))
 
 
-def guess_protocol(path: str) -> str:
+def guess_protocol(path: str) -> str | None:
     """从路径中提取协议"""
     if path.startswith(("http://", "https://")):
         return "http"
     elif path.startswith("s3://"):
         return "s3"
-    elif path.startswith("file://") or path.startswith("/"):
+    elif path.startswith("file://") or path[0] in (".", "/", "\\", "~"):
         return "file"
-    return "file"  # 默认为文件协议
+    else:
+        url = urlparse(path)
+        if url.scheme:
+            return url.scheme
+        else:
+            return None
 
 
 def join_paths(base: str, other: str) -> str:
