@@ -12,4 +12,4 @@ def OmniPath(path: str) -> HttpPath | S3Path | LocalPath:
         case "file":
             return LocalPath(path)
         case _:
-            raise ValueError(f"Unsupported protocol: {protocol}")
+            raise NotImplementedError(f"Unsupported protocol: {protocol}")
