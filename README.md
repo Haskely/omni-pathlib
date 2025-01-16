@@ -97,11 +97,12 @@ uv run pytest
 ### commit
 
 ```bash
+pre-commit install
 cz commit
 ```
 
 ### 发布
 
 ```bash
-cz release
+cz bump
 ```
