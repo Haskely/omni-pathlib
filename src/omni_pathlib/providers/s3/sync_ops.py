@@ -485,7 +485,9 @@ def create_bucket(
         f"{endpoint}{uri}", data=location_constraint, headers=signed_headers["headers"]
     )
     curl_cffi_raise_for_status_with_text(response)
-    return response
+    if "Error" in response.text:
+        raise ValueError(f"create bucket failed: {response.text}")
+    return True
 
 
 if __name__ == "__main__":

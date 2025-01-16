@@ -19,9 +19,8 @@ def test_bucket(moto_server):
     # 使用 S3Path 创建 bucket
     from omni_pathlib.providers.s3.sync_ops import create_bucket
 
-    resp = create_bucket(bucket_name, moto_server, "", "testing", "testing")
-    if "Error" in resp.text:
-        raise ValueError(resp.text)
+    create_bucket(bucket_name, moto_server, "", "testing", "testing")
+
     return bucket_name
 
 
