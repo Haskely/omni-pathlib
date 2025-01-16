@@ -1,6 +1,6 @@
 [project]
 name = "omni_pathlib"
-dynamic = ["version"]
+version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -15,15 +15,23 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.version]
-source = "vcs"
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = [
+    "pyproject.toml:version",
+]
+update_changelog_on_bump = true
+changelog_incremental = true
+changelog_file = "CHANGELOG.md"
 
 [dependency-groups]
 dev = [
-    "git-cliff>=2.7.0",
+    "commitizen>=3.18.4",
     "loguru>=0.7.3",
     "moto[server]>=5.0.26",
     "pre-commit>=4.0.1",
