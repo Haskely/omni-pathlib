@@ -1,5 +1,5 @@
 from omni_pathlib.providers import HttpPath, S3Path, LocalPath
-from omni_pathlib.utils import guess_protocol
+from omni_pathlib.utils.guess_protocol import guess_protocol
 
 
 def OmniPath(path: str) -> HttpPath | S3Path | LocalPath:

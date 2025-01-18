@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncIterator, Iterator, TypeVar
 from datetime import datetime
 from dataclasses import dataclass
-from omni_pathlib.utils import guess_protocol, join_paths, is_absolute_path
+from omni_pathlib.utils import join_paths, is_absolute_path
+from omni_pathlib.utils.guess_protocol import guess_protocol
 
 
 @dataclass
