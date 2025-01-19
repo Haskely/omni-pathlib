@@ -1,18 +1,14 @@
 """
-AWS 配置文件和环境变量解析
+S3 Profile 获取逻辑
 
-- 从 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, OSS_ENDPOINT, S3_ENDPOINT, AWS_ENDPOINT_URL 获取环境变量配置
-- 从 AWS_SHARED_CREDENTIALS_FILE 获取配置文件路径并加载配置，默认 ~/.aws/credentials
-- 环境变量配置优先级高于配置文件配置
-- 从 AWS_PROFILE 获取 profile 名称，默认 default
-- 若 profile 名称对应的配置不存在，则使用第一个配置名称
+- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置，这些配置默认会覆盖到 `default` profile 中，但是可以通过添加前缀指定到其他 profile 中，例如：`my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` 会放到 `my_profile` 中
+- 从环境变量 `AWS_SHARED_CREDENTIALS_FILE` 获取配置文件路径并加载配置，默认 `~/.aws/credentials`
 """
 
 from collections import defaultdict
 import configparser
 import os
 from rich import print
-from loguru import logger
 
 env_name_map = {
     "aws_access_key_id": ("AWS_ACCESS_KEY_ID",),
@@ -68,21 +64,6 @@ ENV_CREDENTIALS = get_credentials_from_env()
 FILE_CREDENTIALS = get_credentials_from_file(CREDENTIALS_PATH)
 
 CREDENTIALS = ENV_CREDENTIALS | FILE_CREDENTIALS
-# 添加默认配置，确保至少有一个可用的 profile
-if not CREDENTIALS:
-    CREDENTIALS["default"] = {}
-    logger.warning("No AWS credentials found, using empty default profile")
-
-
-DEFAULT_PROFILE_NAME = os.getenv("AWS_PROFILE", "default")
-
-if DEFAULT_PROFILE_NAME not in CREDENTIALS:
-    first_profile_name = next(iter(CREDENTIALS.keys()))
-    logger.warning(
-        f'Profile Name: "{DEFAULT_PROFILE_NAME}" not found in credentials, using first profile name: "{first_profile_name}"'
-    )
-    DEFAULT_PROFILE_NAME = first_profile_name
 
 if __name__ == "__main__":
     print(CREDENTIALS)
-    print(DEFAULT_PROFILE_NAME)
