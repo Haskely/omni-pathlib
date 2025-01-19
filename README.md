@@ -103,9 +103,9 @@ path = OmniPath("s3://bucket/key")  # 将使用 other_profile 配置
 path = OmniPath("s3://bucket/key")  # 将使用 default 配置（如果存在）或者找到的第一个配置
 ```
 
-#### S3 Profile 获取逻辑
+#### S3 Profiles 获取逻辑
 
-- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置，这些配置默认会覆盖到 `default` profile 中，但是可以通过添加前缀指定到其他 profile 中，例如：`my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` 会放到 `my_profile` 中
+- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置，这些配置默认会覆盖到名为 `default` profile 中，但是可以通过添加前缀指定到其他名字的 profile 中，例如：`my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` 会放到名为 `my_profile` 的 profile 中
 - 从环境变量 `AWS_SHARED_CREDENTIALS_FILE` 获取配置文件路径并加载配置，默认 `~/.aws/credentials`
 
 ## 开发
@@ -133,4 +133,6 @@ cz commit
 
 ```bash
 cz bump
+
+git push --follow-tags
 ```
