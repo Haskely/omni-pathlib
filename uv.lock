@@ -266,30 +266,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.36.0"
+version = "1.36.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c8/c6/ec86c6eafc942dbddffcaa4eb623373bf94ecf38fab0ab3e7f9fe7051e62/boto3-1.36.0.tar.gz", hash = "sha256:159898f51c2997a12541c0e02d6e5a8fe2993ddb307b9478fd9a339f98b57e00", size = 111035 }
+sdist = { url = "https://files.pythonhosted.org/packages/3a/e9/c0b2fa75efc4007ea1af21bc2fcbedf6e545c517fb90904d7f59850e02bf/boto3-1.36.2.tar.gz", hash = "sha256:fde1c29996b77274a60b7bc9f741525afa6267bb1716eb644a764fb7c124a0d2", size = 110998 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/36/b91f560a0ed11f7f90ac59554cbc52340158ce24db879a7c8faa68ff1cef/boto3-1.36.0-py3-none-any.whl", hash = "sha256:d0ca7a58ce25701a52232cc8df9d87854824f1f2964b929305722ebc7959d5a9", size = 139165 },
+    { url = "https://files.pythonhosted.org/packages/17/c2/72a92794237b43f64141e156bc3a58bc36d18631f1a614e1e97a48b56447/boto3-1.36.2-py3-none-any.whl", hash = "sha256:76cfc9a705be46e8d22607efacc8d688c064f923d785a01c00b28e9a96425d1a", size = 139166 },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.36.0"
+version = "1.36.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4b/0a/b0e565de60e9cf3ab92aa892b84eb89eec43fef816e39c1f5a2e635755bd/botocore-1.36.0.tar.gz", hash = "sha256:0232029ff9ae3f5b50cdb25cbd257c16f87402b6d31a05bd6483638ee6434c4b", size = 13499529 }
+sdist = { url = "https://files.pythonhosted.org/packages/c6/93/353b70cea6447e37789fc2d6f761fc12ae36fb4adb6f558055de8cdf655f/botocore-1.36.2.tar.gz", hash = "sha256:a1fe6610983f0214b0c7655fe6990b6a731746baf305b182976fc7b568fc3cb0", size = 13505440 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/87/c5aa3eeb820937ac1c00c0e2172aaacbfba2b2de2467b8162bef6b6f5b1f/botocore-1.36.0-py3-none-any.whl", hash = "sha256:b54b11f0cfc47fc1243ada0f7f461266c279968487616720fa8ebb02183917d7", size = 13297503 },
+    { url = "https://files.pythonhosted.org/packages/0c/fe/c066e8cb069027c12dbcf9066a7a4f3e9d2a31b10c7b174a8455ef1d0f46/botocore-1.36.2-py3-none-any.whl", hash = "sha256:bc3b7e3b573a48af2bd7116b80fe24f9a335b0b67314dcb2697a327d009abf29", size = 13302324 },
 ]
 
 [[package]]
@@ -1129,7 +1129,7 @@ wheels = [
 
 [[package]]
 name = "omni-pathlib"
-version = "0.0.2.dev7+g0851b2b.d20250116"
+version = "0.1.2.dev3+ga6eb2b4.d20250119"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
@@ -1823,14 +1823,14 @@ wheels = [
 
 [[package]]
 name = "s3transfer"
-version = "0.11.0"
+version = "0.11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/82/e0/5f98a2974fa8c041848ff1acb657b50546ea1505fc1f50e3424120cee557/s3transfer-0.11.0.tar.gz", hash = "sha256:6563eda054c33bdebef7cbf309488634651c47270d828e594d151cd289fb7cf7", size = 146986 }
+sdist = { url = "https://files.pythonhosted.org/packages/1a/aa/fdd958c626b00e3f046d4004363e7f1a2aba4354f78d65ceb3b217fa5eb8/s3transfer-0.11.1.tar.gz", hash = "sha256:3f25c900a367c8b7f7d8f9c34edc87e300bde424f779dc9f0a8ae4f9df9264f6", size = 146952 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/74/940311734dfbe36bf06ed86e4c367c8fb2b137448762c4724142180411fb/s3transfer-0.11.0-py3-none-any.whl", hash = "sha256:f43b03931c198743569bbfb6a328a53f4b2b4ec723cd7c01fab68e3119db3f8b", size = 84113 },
+    { url = "https://files.pythonhosted.org/packages/5f/ce/22673f4a85ccc640735b4f8d12178a0f41b5d3c6eda7f33756d10ce56901/s3transfer-0.11.1-py3-none-any.whl", hash = "sha256:8fa0aa48177be1f3425176dfe1ab85dcd3d962df603c3dbfc585e6bf857ef0ff", size = 84111 },
 ]
 
 [[package]]
@@ -1949,16 +1949,16 @@ wheels = [
 
 [[package]]
 name = "virtualenv"
-version = "20.29.0"
+version = "20.29.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "distlib" },
     { name = "filelock" },
     { name = "platformdirs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5a/5d/8d625ebddf9d31c301f85125b78002d4e4401fe1c15c04dca58a54a3056a/virtualenv-20.29.0.tar.gz", hash = "sha256:6345e1ff19d4b1296954cee076baaf58ff2a12a84a338c62b02eda39f20aa982", size = 7658081 }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/ca/f23dcb02e161a9bba141b1c08aa50e8da6ea25e6d780528f1d385a3efe25/virtualenv-20.29.1.tar.gz", hash = "sha256:b8b8970138d32fb606192cb97f6cd4bb644fa486be9308fb9b63f81091b5dc35", size = 7658028 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f0/d3/12687ab375bb0e077ea802a5128f7b45eb5de7a7c6cb576ccf9dd59ff80a/virtualenv-20.29.0-py3-none-any.whl", hash = "sha256:c12311863497992dc4b8644f8ea82d3b35bb7ef8ee82e6630d76d0197c39baf9", size = 4282443 },
+    { url = "https://files.pythonhosted.org/packages/89/9b/599bcfc7064fbe5740919e78c5df18e5dceb0887e676256a1061bb5ae232/virtualenv-20.29.1-py3-none-any.whl", hash = "sha256:4e4cb403c0b0da39e13b46b1b2476e505cb0046b25f242bee80f62bf990b2779", size = 4282379 },
 ]
 
 [[package]]
