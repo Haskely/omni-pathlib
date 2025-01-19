@@ -3,10 +3,19 @@ name: Test Package Installation and Basic Functions
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
   pull_request:
     branches: [ "main" ]
   # 当发布工作流触发时也运行测试
   workflow_call:
+
+# 添加并发控制
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
