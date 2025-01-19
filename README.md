@@ -71,14 +71,42 @@ async def main():
 - 完整支持 S3 存储桶操作
 - 支持自定义 endpoint
 - 支持多种认证方式
+- 支持在 URL scheme 中指定 profile
 
-#### S3 鉴权信息获取逻辑
+#### S3 Profile 配置优先级
 
-- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置
+配置优先级从高到低：
+
+1. 通过参数直接传入的配置
+2. 通过 URL scheme 指定的 profile（例如：`s3+my_profile://bucket/key`）
+3. 通过环境变量 `AWS_PROFILE` 配置
+4. 配置文件中的 `default` profile
+5. 配置文件中的第一个 profile
+
+#### S3 URL Scheme 示例
+
+```python
+# 参数优先级高于 URL scheme
+path = OmniPath(
+    "s3+my_profile://bucket/key",
+    profile_name="other_profile"  # 将使用 other_profile 而不是 my_profile
+)
+
+# 通过 URL scheme 指定 profile
+path = OmniPath("s3+my_profile://bucket/key")  # 将使用 my_profile 配置
+
+# 通过环境变量指定 profile
+os.environ["AWS_PROFILE"] = "other_profile"
+path = OmniPath("s3://bucket/key")  # 将使用 other_profile 配置
+
+# 通过配置文件指定 profile
+path = OmniPath("s3://bucket/key")  # 将使用 default 配置（如果存在）或者找到的第一个配置
+```
+
+#### S3 Profile 获取逻辑
+
+- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置，这些配置默认会覆盖到 `default` profile 中，但是可以通过添加前缀指定到其他 profile 中，例如：`my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` 会放到 `my_profile` 中
 - 从环境变量 `AWS_SHARED_CREDENTIALS_FILE` 获取配置文件路径并加载配置，默认 `~/.aws/credentials`
-- 环境变量配置优先级高于配置文件配置
-- 从环境变量 `AWS_PROFILE` 获取 profile 名称，默认 `default`
-- 若 profile 名称对应的配置不存在，则使用第一个配置名称
 
 ## 开发
 
