@@ -154,7 +154,8 @@ def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
 
     # 测试无效的 profile
     with pytest.raises(
-        ValueError, match="Profile Name from path scheme.*not found in credentials"
+        ValueError,
+        match="Profile Name from scheme.*not found in credentials, available profile names:.*",
     ):
         S3Path(f"s3+invalid_profile://{test_bucket}/error.txt")
 
