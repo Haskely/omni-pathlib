@@ -30,30 +30,45 @@ class S3Path(BasePath):
     ):
         super().__init__(path)
 
+        # 解析 bucket 和 key
+        scheme, rest = path.split("://", 1)
+        if len(parts := rest.split("/", 1)) == 2:
+            self.bucket, self.key = parts
+        else:
+            self.bucket = rest
+            self.key = ""
+
+        # Process Profile Name
         if profile_name and profile_name not in CREDENTIALS:
             raise ValueError(
-                f'Profile "{profile_name}" not found in credentials, avaliable profiles: {list(CREDENTIALS.keys())}'
+                f'Profile Name from args: "{profile_name}" not found in credentials, avaliable profile names: {list(CREDENTIALS.keys())}'
             )
 
-        _default_profile = CREDENTIALS[profile_name or DEFAULT_PROFILE_NAME]
+        if not profile_name and len(_sch_parts := scheme.split("+")) > 1:
+            profile_name = _sch_parts[1]
+            if profile_name and profile_name not in CREDENTIALS:
+                raise ValueError(
+                    f'Profile Name from path scheme({scheme}): "{profile_name}" not found in credentials, avaliable profile names: {list(CREDENTIALS.keys())}'
+                )
 
-        if (
-            endpoint_url := (endpoint_url or _default_profile.get("endpoint_url"))
-        ) is None:
+        if not profile_name:
+            profile_name = DEFAULT_PROFILE_NAME
+
+        _profile = CREDENTIALS[profile_name]
+
+        if (endpoint_url := (endpoint_url or _profile.get("endpoint_url"))) is None:
             endpoint_url = "s3.us-east-1.amazonaws.com"
             logger.warning(
                 f"Endpoint URL is not provided! Using default endpoint: {endpoint_url}"
             )
 
-        if (
-            region_name := (region_name or _default_profile.get("region_name"))
-        ) is None:
+        if (region_name := (region_name or _profile.get("region_name"))) is None:
             # print("Region name is not provided! Using default region: us-east-1")
             region_name = "us-east-1"
 
         if (
             aws_access_key_id := (
-                aws_access_key_id or _default_profile.get("aws_access_key_id")
+                aws_access_key_id or _profile.get("aws_access_key_id")
             )
         ) is None:
             aws_access_key_id = ""
@@ -63,7 +78,7 @@ class S3Path(BasePath):
 
         if (
             aws_secret_access_key := (
-                aws_secret_access_key or _default_profile.get("aws_secret_access_key")
+                aws_secret_access_key or _profile.get("aws_secret_access_key")
             )
         ) is None:
             aws_secret_access_key = ""
@@ -77,10 +92,7 @@ class S3Path(BasePath):
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
 
-        # 解析 bucket 和 key
-        parts = self.path.replace("s3://", "").split("/", 1)
-        self.bucket = parts[0]
-        self.key = parts[1] if len(parts) > 1 else ""
+        self._profile = _profile
 
     @property
     def protocol(self) -> str:
@@ -295,15 +307,8 @@ if __name__ == "__main__":
 
     from rich import print
 
-    async def test_listdir():
-        path = S3Path("s3://zzx/")
+    async def test_scheme_profile():
+        path = S3Path("s3+test_profile://test-bucket/profile_test.txt")
+        print(path.config)
 
-        print("DEBUG: path.async_iterdir()")
-        async for item in path.async_iterdir():
-            print(item)
-
-        print("DEBUG: path.iterdir()")
-        for item in path.iterdir():
-            print(item)
-
-    asyncio.run(test_listdir())
+    asyncio.run(test_scheme_profile())
