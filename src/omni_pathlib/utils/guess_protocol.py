@@ -1,5 +1,3 @@
-from urllib.parse import urlparse
-
 SCHEMAS_TO_PROTOCOL = {
     "http": "http",
     "https": "http",
@@ -9,11 +7,13 @@ SCHEMAS_TO_PROTOCOL = {
 }
 
 
-def guess_protocol(path: str) -> str | None:
+def guess_protocol(path: str) -> str:
     """从路径中提取协议"""
-    parsed = urlparse(path)
-
-    first_schema = parsed.scheme.split("+")[0]
+    if "://" in path:
+        scheme = path.split("://", 1)[0]
+        first_schema = scheme.split("+")[0]
+    else:
+        first_schema = ""
 
     return SCHEMAS_TO_PROTOCOL.get(first_schema, first_schema)
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     for path in [
         "s3://bucket/path/to/file.txt",
-        "s3+basemind://bucket/path/to/file.txt",
+        "s3+profile://bucket/path/to/file.txt",
         "http://bucket/path/to/file.txt",
         "https://bucket/path/to/file.txt",
         "file://bucket/path/to/file.txt",
@@ -42,6 +42,7 @@ if __name__ == "__main__":
         "sftp://bucket/path/to/file.txt",
         "ssh://bucket/path/to/file.txt",
         "scp://bucket/path/to/file.txt",
+        "s3+test_profile://bucket/path/to/file.txt",
     ]:
         table.add_row(path, str(guess_protocol(path)))
 
