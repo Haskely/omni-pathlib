@@ -487,23 +487,30 @@ def create_bucket(
     curl_cffi_raise_for_status_with_text(response)
     if "Error" in response.text:
         raise ValueError(f"create bucket failed: {response.text}")
-    return True
+    return response.text
 
 
 if __name__ == "__main__":
     from rich import print
     import json
-    from omni_pathlib.providers.s3.credentials import CREDENTIALS
+    from moto.server import ThreadedMotoServer
 
-    credentials = CREDENTIALS["basemind"]
+    server = ThreadedMotoServer()
 
-    print(credentials)
+    credentials = {
+        "endpoint_url": "http://localhost:5000",
+        "region_name": "unknown",
+        "aws_access_key_id": "test",
+        "aws_secret_access_key": "test",
+    }
+
+    print(f"Using profile: {credentials}")
 
     ak = credentials["aws_access_key_id"]
     sk = credentials["aws_secret_access_key"]
     endpoint = credentials["endpoint_url"]
     region = credentials.get("region", "unknown")
-    bucket = "zzx"
+    bucket = "haskely"
 
     # 定义测试路径和文件
     TEST_PREFIX = "test_folder/"
@@ -517,6 +524,10 @@ if __name__ == "__main__":
     def setup_test_env():
         """创建测试环境"""
         print("正在创建测试环境...")
+
+        server.start()
+
+        create_bucket(bucket, endpoint, region, ak, sk)
         for key, content in TEST_FILES.items():
             upload_file(bucket, key, content, endpoint, region, ak, sk)
             print(f"已上传: {key}")
@@ -527,6 +538,7 @@ if __name__ == "__main__":
         keys_to_delete = list(TEST_FILES.keys())
         result = delete_objects(bucket, keys_to_delete, endpoint, region, ak, sk)
         print(f"清理结果: {result}")
+        server.stop()
 
     def test_listdir():
         """测试列出文件夹内容"""

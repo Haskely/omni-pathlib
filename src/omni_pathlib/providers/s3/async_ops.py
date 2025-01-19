@@ -504,10 +504,13 @@ async def create_bucket(
     host, uri = _prepare_request_params(bucket, None, endpoint)
 
     # 准备创建存储桶的 XML 配置
-    location_constraint = f"""<?xml version="1.0" encoding="UTF-8"?>
-        <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-            <LocationConstraint>{region}</LocationConstraint>
-        </CreateBucketConfiguration>""".encode("utf-8")
+    if not region:
+        location_constraint = b""
+    else:
+        location_constraint = f"""<?xml version="1.0" encoding="UTF-8"?>
+            <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+                <LocationConstraint>{region}</LocationConstraint>
+            </CreateBucketConfiguration>""".encode("utf-8")
 
     headers = {
         "Content-Type": "application/xml",
@@ -532,23 +535,30 @@ async def create_bucket(
             headers=signed_headers["headers"],
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
-            return response.status in (200, 201)  # S3 创建成功返回 200 或 201
+            if "Error" in (resp_text := await response.text()):
+                raise ValueError(f"create bucket failed: {resp_text}")
+            return resp_text
 
 
 if __name__ == "__main__":
     from rich import print
     import json
-    from omni_pathlib.providers.s3.credentials import CREDENTIALS
+    from moto.server import ThreadedMotoServer
 
-    credentials = CREDENTIALS["basemind"]
+    server = ThreadedMotoServer()
 
-    print(credentials)
+    credentials = {
+        "endpoint_url": "http://localhost:5000",
+        "region": "unknown",
+        "aws_access_key_id": "test",
+        "aws_secret_access_key": "test",
+    }
 
     ak = credentials["aws_access_key_id"]
     sk = credentials["aws_secret_access_key"]
     endpoint = credentials["endpoint_url"]
     region = credentials.get("region", "unknown")
-    bucket = "zzx"
+    bucket = "haskely"
 
     # 定义测试路径和文件
     TEST_PREFIX = "test_folder/"
@@ -562,6 +572,10 @@ if __name__ == "__main__":
     async def setup_test_env():
         """创建测试环境"""
         print("正在创建测试环境...")
+        server.start()
+
+        await create_bucket(bucket, endpoint, region, ak, sk)
+
         for key, content in TEST_FILES.items():
             await upload_file(bucket, key, content, endpoint, region, ak, sk)
             print(f"已上传: {key}")
@@ -572,6 +586,7 @@ if __name__ == "__main__":
         keys_to_delete = list(TEST_FILES.keys())
         result = await delete_objects(bucket, keys_to_delete, endpoint, region, ak, sk)
         print(f"清理结果: {result}")
+        server.stop()
 
     async def test_listdir():
         """测试列出文件夹内容"""
