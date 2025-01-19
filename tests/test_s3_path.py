@@ -1,6 +1,7 @@
 import pytest
 from moto.server import ThreadedMotoServer
 from omni_pathlib.providers.s3 import S3Path
+from loguru import logger
 
 
 @pytest.fixture(scope="module")
@@ -8,7 +9,7 @@ def moto_server():
     """创建 Moto 服务器实例"""
     server = ThreadedMotoServer()
     server.start()
-    yield "http://127.0.0.1:5000"
+    yield "http://localhost:5000"
     server.stop()
 
 
@@ -19,7 +20,8 @@ def test_bucket(moto_server):
     # 使用 S3Path 创建 bucket
     from omni_pathlib.providers.s3.sync_ops import create_bucket
 
-    create_bucket(bucket_name, moto_server, "", "testing", "testing")
+    create_result = create_bucket(bucket_name, moto_server, "", "testing", "testing")
+    print("DEBUG: create_result", create_result)
 
     return bucket_name
 
@@ -120,3 +122,60 @@ async def test_s3_path_async_iterdir(test_bucket, s3_config):
     print("DEBUG: items", items)
     target_items = {"s3://test-bucket/async_dir1/", "s3://test-bucket/async_dir2/"}
     assert target_items.issubset(items), f"extra items: {target_items - items}"
+
+
+def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
+    """测试通过 URL scheme 指定 profile 的功能"""
+    # 设置测试用的凭证配置
+    from omni_pathlib.providers.s3.credentials import CREDENTIALS
+
+    CREDENTIALS["default"] = {}
+    CREDENTIALS["test_profile"] = {
+        "endpoint_url": s3_config["endpoint_url"],
+        "region_name": s3_config["region_name"],
+        "aws_access_key_id": s3_config["aws_access_key_id"],
+        "aws_secret_access_key": s3_config["aws_secret_access_key"],
+    }
+
+    # 测试使用 scheme 中的 profile
+    path = S3Path(f"s3+test_profile://{test_bucket}/profile_test.txt")
+    logger.debug(f"DEBUG: path: {path.config}")
+    path.write_text("通过 profile 写入的内容")
+
+    assert path.exists()
+    assert path.read_text() == "通过 profile 写入的内容"
+    assert path.profile_name == "test_profile"
+
+    # 测试 profile 优先级：参数优先于 URL scheme
+    path_with_both = S3Path(
+        f"s3+test_profile://{test_bucket}/priority_test.txt", profile_name="default"
+    )
+    assert path_with_both.profile_name == "default"
+
+    # 测试无效的 profile
+    with pytest.raises(
+        ValueError, match="Profile Name from path scheme.*not found in credentials"
+    ):
+        S3Path(f"s3+invalid_profile://{test_bucket}/error.txt")
+
+
+@pytest.mark.asyncio
+async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
+    """测试异步操作时通过 URL scheme 指定 profile 的功能"""
+    # 设置测试用的凭证配置
+    from omni_pathlib.providers.s3.credentials import CREDENTIALS
+
+    CREDENTIALS["async_test_profile"] = {
+        "endpoint_url": s3_config["endpoint_url"],
+        "region_name": s3_config["region_name"],
+        "aws_access_key_id": s3_config["aws_access_key_id"],
+        "aws_secret_access_key": s3_config["aws_secret_access_key"],
+    }
+
+    # 测试异步操作
+    path = S3Path(f"s3+async_test_profile://{test_bucket}/async_profile_test.txt")
+    await path.async_write_text("异步通过 profile 写入的内容")
+
+    assert await path.async_exists()
+    assert await path.async_read_text() == "异步通过 profile 写入的内容"
+    assert path.profile_name == "async_test_profile"
