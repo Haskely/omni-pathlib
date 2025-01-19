@@ -29,7 +29,7 @@ class S3Path(BasePath):
             (profile_name, "args"),
             (scheme.split("+")[1] if "+" in scheme else None, "scheme"),
             (os.getenv("AWS_PROFILE"), "env"),
-            ("default", "default"),
+            ("default" if "default" in CREDENTIALS else None, "default"),
             (next(iter(CREDENTIALS.keys()), None), "first profile"),
         ]
 
