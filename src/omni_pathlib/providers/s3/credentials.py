@@ -12,9 +12,7 @@ from collections import defaultdict
 import configparser
 import os
 from rich import print
-import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 env_name_map = {
     "aws_access_key_id": ("AWS_ACCESS_KEY_ID",),
@@ -70,17 +68,18 @@ ENV_CREDENTIALS = get_credentials_from_env()
 FILE_CREDENTIALS = get_credentials_from_file(CREDENTIALS_PATH)
 
 CREDENTIALS = ENV_CREDENTIALS | FILE_CREDENTIALS
-DEFAULT_PROFILE_NAME = os.getenv("AWS_PROFILE", "default")
-
 # 添加默认配置，确保至少有一个可用的 profile
 if not CREDENTIALS:
     CREDENTIALS["default"] = {}
     logger.warning("No AWS credentials found, using empty default profile")
 
+
+DEFAULT_PROFILE_NAME = os.getenv("AWS_PROFILE", "default")
+
 if DEFAULT_PROFILE_NAME not in CREDENTIALS:
     first_profile_name = next(iter(CREDENTIALS.keys()))
     logger.warning(
-        f'Profile "{DEFAULT_PROFILE_NAME}" not found in credentials, using first profile "{first_profile_name}"'
+        f'Profile Name: "{DEFAULT_PROFILE_NAME}" not found in credentials, using first profile name: "{first_profile_name}"'
     )
     DEFAULT_PROFILE_NAME = first_profile_name
 
