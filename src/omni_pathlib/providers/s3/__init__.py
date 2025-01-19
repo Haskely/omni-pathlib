@@ -1,10 +1,11 @@
 from datetime import datetime
+import os
 from typing import AsyncIterator, Iterator
 from omni_pathlib.base_path import BasePath, FileInfo
 from omni_pathlib.providers.s3 import async_ops, sync_ops
 import aiohttp
 from curl_cffi.requests.exceptions import HTTPError
-from omni_pathlib.providers.s3.credentials import DEFAULT_PROFILE_NAME, CREDENTIALS
+from omni_pathlib.providers.s3.credentials import CREDENTIALS
 from loguru import logger
 
 
@@ -18,6 +19,32 @@ class S3Path(BasePath):
             "aws_access_key_id": self.aws_access_key_id,
             "aws_secret_access_key": self.aws_secret_access_key,
         }
+
+    def _get_profile_name(self, profile_name: str | None, scheme: str) -> str | None:
+        """获取配置文件名称
+        优先级：参数 > URL scheme > 环境变量 > default > 配置文件第一个
+        """
+        # 尝试从不同来源获取 profile_name
+        candidates = [
+            (profile_name, "args"),
+            (scheme.split("+")[1] if "+" in scheme else None, "scheme"),
+            (os.getenv("AWS_PROFILE"), "env"),
+            ("default", "default"),
+            (next(iter(CREDENTIALS.keys()), None), "first profile"),
+        ]
+
+        # 返回第一个有效的 profile_name
+        for name, source in candidates:
+            if not name:
+                continue
+            if name not in CREDENTIALS:
+                raise ValueError(
+                    f'Profile Name from {source}: "{name}" not found in credentials, '
+                    f"available profile names: {list(CREDENTIALS.keys())}"
+                )
+            return name
+
+        return None
 
     def __init__(
         self,
@@ -38,23 +65,9 @@ class S3Path(BasePath):
             self.bucket = rest
             self.key = ""
 
-        # Process Profile Name
-        if profile_name and profile_name not in CREDENTIALS:
-            raise ValueError(
-                f'Profile Name from args: "{profile_name}" not found in credentials, avaliable profile names: {list(CREDENTIALS.keys())}'
-            )
-
-        if not profile_name and len(_sch_parts := scheme.split("+")) > 1:
-            profile_name = _sch_parts[1]
-            if profile_name and profile_name not in CREDENTIALS:
-                raise ValueError(
-                    f'Profile Name from path scheme({scheme}): "{profile_name}" not found in credentials, avaliable profile names: {list(CREDENTIALS.keys())}'
-                )
-
-        if not profile_name:
-            profile_name = DEFAULT_PROFILE_NAME
-
-        _profile = CREDENTIALS[profile_name]
+        # 获取并验证 profile_name
+        self.profile_name = self._get_profile_name(profile_name, scheme)
+        _profile = CREDENTIALS[self.profile_name] if self.profile_name else {}
 
         if (endpoint_url := (endpoint_url or _profile.get("endpoint_url"))) is None:
             endpoint_url = "s3.us-east-1.amazonaws.com"
@@ -86,7 +99,6 @@ class S3Path(BasePath):
                 "AWS secret access key is not provided! Using EMPTY secret access key"
             )
 
-        self.profile_name = profile_name
         self.endpoint_url = endpoint_url
         self.region_name = region_name
         self.aws_access_key_id = aws_access_key_id
