@@ -1,11 +1,11 @@
-# OmniPath
+# Omni-Pathlib
 
-OmniPath 是一个统一的路径处理库，支持本地文件系统、HTTP 和 S3 存储的路径操作。它提供了同步和异步 API，使得在不同存储系统间操作文件变得简单统一。
+Omni-Pathlib 是一个统一的路径处理库，支持本地文件系统、HTTP 和 S3 存储的路径操作。它提供了同步和异步 API，使得在不同存储系统间操作文件变得简单统一。
 
 ## 安装
 
 ```bash
-pip install omni_pathlib
+pip install omni-pathlib
 ```
 
 ## 基本用法
@@ -43,14 +43,31 @@ async def main():
 
 ### 基础操作
 
-- `exists()` / `async_exists()` - 检查路径是否存在
-- `iterdir()` / `async_iterdir()` - 遍历目录内容
-- `stat()` / `async_stat()` - 获取文件信息(大小、修改时间等)
-- `read_bytes()` / `async_read_bytes()` - 读取文件内容(二进制)
-- `read_text()` / `async_read_text()` - 读取文件内容(文本)
-- `write_bytes(data)` / `async_write_bytes(data)` - 写入文件内容(二进制)
-- `write_text(data)` / `async_write_text(data)` - 写入文件内容(文本)
-- `delete()` / `async_delete()` - 删除文件
+所有存储类型都支持以下操作：
+
+```python
+# 路径属性
+path.name      # 获取路径名称
+path.stem      # 获取不带后缀的路径名称
+path.suffix    # 获取路径后缀
+path.parent    # 获取父路径
+path.protocol  # 获取协议类型（'file'、'http'、's3'）
+
+# 基础操作
+path.exists()              # 检查路径是否存在
+path.iterdir()            # 遍历目录内容
+path.stat()               # 获取文件信息（大小、修改时间等）
+path.read_bytes()         # 读取二进制内容
+path.read_text()          # 读取文本内容
+path.write_bytes(data)    # 写入二进制内容
+path.write_text(data)     # 写入文本内容
+path.delete()             # 删除文件
+
+# 所有操作都有对应的异步版本
+await path.async_exists()
+await path.async_iterdir()
+# ... 等等
+```
 
 ### 本地文件系统特有操作
 
