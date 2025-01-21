@@ -1,3 +1,14 @@
+## v0.3.0 (2025-01-21)
+
+### Feat
+
+- **base_path**: Enhance BasePath class with path information properties
+- **parse_url**: Add URL parsing utility with PathInfo dataclass
+
+### Refactor
+
+- **s3**: Rename config property to kwargs in S3Path class
+
 ## v0.2.0 (2025-01-19)
 
 ### Feat
