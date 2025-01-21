@@ -1,5 +1,17 @@
 # Omni-Pathlib
 
+[![PyPI version](https://img.shields.io/pypi/v/omni-pathlib.svg)](https://pypi.org/project/omni-pathlib/)
+[![Python Version](https://img.shields.io/pypi/pyversions/omni-pathlib.svg)](https://pypi.org/project/omni-pathlib/)
+[![License](https://img.shields.io/github/license/Haskely/omni-pathlib.svg)](https://github.com/Haskely/omni-pathlib/blob/main/LICENSE)
+[![Downloads](https://static.pepy.tech/badge/omni-pathlib)](https://pepy.tech/project/omni-pathlib)
+[![GitHub Stars](https://img.shields.io/github/stars/Haskely/omni-pathlib.svg)](https://github.com/Haskely/omni-pathlib/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/Haskely/omni-pathlib.svg)](https://github.com/Haskely/omni-pathlib/issues)
+<!-- [![CI](https://github.com/Haskely/omni-pathlib/actions/workflows/ci.yml/badge.svg)](https://github.com/Haskely/omni-pathlib/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/Haskely/omni-pathlib/branch/main/graph/badge.svg)](https://codecov.io/gh/Haskely/omni-pathlib)
+[![Documentation Status](https://readthedocs.org/projects/omni-pathlib/badge/?version=latest)](https://omni-pathlib.readthedocs.io/)
+[![Code Quality](https://app.codacy.com/project/badge/Grade/YOUR_PROJECT_ID)](https://app.codacy.com/gh/Haskely/omni-pathlib/) -->
+[![Dependencies](https://img.shields.io/librariesio/github/Haskely/omni-pathlib)](https://libraries.io/github/Haskely/omni-pathlib)
+
 Omni-Pathlib 是一个统一的路径处理库，支持本地文件系统、HTTP 和 S3 存储的路径操作。它提供了同步和异步 API，使得在不同存储系统间操作文件变得简单统一。
 
 ## 安装

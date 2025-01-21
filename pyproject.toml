@@ -1,7 +1,7 @@
 [project]
 name = "omni_pathlib"
 dynamic = ["version"]
-description = "Add your description here"
+description = "一个统一的路径处理库,支持本地文件系统、HTTP 和 S3 存储的路径操作"
 readme = "README.md"
 authors = [
     { name = "Haskely", email = "Haskely@live.com" }
@@ -14,6 +14,23 @@ dependencies = [
     "rich>=13.9.4",
     "xmltodict>=0.14.2",
 ]
+keywords = ["pathlib", "s3", "http", "filesystem", "async"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Filesystems",
+]
+
+[project.urls]
+Homepage = "https://github.com/Haskely/omni-pathlib"
+Repository = "https://github.com/Haskely/omni-pathlib"
+Documentation = "https://github.com/Haskely/omni-pathlib#readme"
+"Bug Tracker" = "https://github.com/Haskely/omni-pathlib/issues"
+"Change Log" = "https://github.com/Haskely/omni-pathlib/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
