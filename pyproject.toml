@@ -40,6 +40,7 @@ ignore_missing_imports = true
 name = "cz_conventional_commits"
 version_provider="scm"
 tag_format = "v$version"
+annotated_tag = true
 version_scheme = "pep440"
 update_changelog_on_bump = true
 major_version_zero = true
