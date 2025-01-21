@@ -4,6 +4,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from omni_pathlib.utils import join_paths, is_absolute_path
 from omni_pathlib.utils.guess_protocol import guess_protocol
+from omni_pathlib.utils.parse_url import PathInfo, parse_url
 
 
 @dataclass
@@ -28,10 +29,40 @@ class BasePath(ABC):
         return self._path
 
     @property
+    def path_info(self) -> PathInfo:
+        """返回路径信息"""
+        return self._path_info
+
+    @property
+    def name(self) -> str:
+        """返回路径名称"""
+        return self.path_info.name
+
+    @property
+    def stem(self) -> str:
+        """返回路径名称（不带后缀）"""
+        return self.path_info.stem
+
+    @property
+    def suffix(self) -> str:
+        """返回路径后缀"""
+        return self.path_info.suffix
+
+    @property
+    def parent(self: T) -> T:
+        """返回路径父路径"""
+        return self.__class__(self.path_info.parent, **self.kwargs)
+
+    @property
     @abstractmethod
     def protocol(self) -> str:
         """返回路径协议（如 'file', 'http', 's3' 等）"""
         pass
+
+    @property
+    def kwargs(self) -> dict[str, Any]:
+        """返回路径参数"""
+        return {}
 
     def __str__(self) -> str:
         """返回路径字符串"""
@@ -41,20 +72,23 @@ class BasePath(ABC):
         """实现路径除法运算符 /"""
         other_str = str(other)
 
-        # 如果other是绝对路径，检查协议是否匹配
         if is_absolute_path(other_str):
+            # 如果other是绝对路径，检查协议是否匹配
             other_protocol = guess_protocol(other_str)
             if other_protocol != self.protocol:
                 raise ValueError(
                     f"Protocol mismatch: {self.protocol} vs {other_protocol}"
                 )
-            return self.__class__(other_str)
+            final_path = other_str
+        else:
+            # 对于相对路径，进行拼接
+            final_path = join_paths(self.path, other_str)
 
-        # 对于相对路径，进行拼接
-        return self.__class__(join_paths(self.path, other_str))
+        return self.__class__(final_path, **self.kwargs)
 
     def __init__(self, path: str) -> None:
         self._path = path
+        self._path_info = parse_url(path)
 
     @abstractmethod
     def exists(self) -> bool:
