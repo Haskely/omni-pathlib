@@ -11,7 +11,7 @@ from loguru import logger
 
 class S3Path(BasePath):
     @property
-    def config(self):
+    def kwargs(self):
         return {
             "profile_name": self.profile_name,
             "endpoint_url": self.endpoint_url,
@@ -158,13 +158,13 @@ class S3Path(BasePath):
             for prefix in response.get("CommonPrefixes", []):
                 if prefix.get("Prefix"):
                     yield S3Path(
-                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.config
+                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.kwargs
                     )
 
             # 处理文件
             for item in response.get("Contents", []):
                 if item.get("Key"):
-                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.config)
+                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.kwargs)
 
     async def async_iterdir(self) -> AsyncIterator["BasePath"]:
         """异步遍历目录"""
@@ -180,13 +180,13 @@ class S3Path(BasePath):
             for prefix in response.get("CommonPrefixes", []):
                 if prefix.get("Prefix"):
                     yield S3Path(
-                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.config
+                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.kwargs
                     )
 
             # 处理文件
             for item in response.get("Contents", []):
                 if item.get("Key"):
-                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.config)
+                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.kwargs)
 
     def stat(self) -> FileInfo:
         """获取文件信息"""
@@ -321,6 +321,6 @@ if __name__ == "__main__":
 
     async def test_scheme_profile():
         path = S3Path("s3+test_profile://test-bucket/profile_test.txt")
-        print(path.config)
+        print(path.kwargs)
 
     asyncio.run(test_scheme_profile())

@@ -1,7 +1,6 @@
 import pytest
 from moto.server import ThreadedMotoServer
 from omni_pathlib.providers.s3 import S3Path
-from loguru import logger
 
 
 @pytest.fixture(scope="module")
@@ -139,7 +138,6 @@ def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
 
     # 测试使用 scheme 中的 profile
     path = S3Path(f"s3+test_profile://{test_bucket}/profile_test.txt")
-    logger.debug(f"DEBUG: path: {path.config}")
     path.write_text("通过 profile 写入的内容")
 
     assert path.exists()
