@@ -1129,7 +1129,7 @@ wheels = [
 
 [[package]]
 name = "omni-pathlib"
-version = "0.1.2.dev3+ga6eb2b4.d20250119"
+version = "0.3.1.dev4+ga2334fb"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

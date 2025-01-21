@@ -1,3 +1,13 @@
+## v0.3.1 (2025-01-21)
+
+### Fix
+
+- **tests**: Correct assertion in test_local_path_join for handling consecutive slashes
+
+### Refactor
+
+- **utils**: Modularize path utilities by separating is_absolute_path and join_paths
+
 ## v0.3.0 (2025-01-21)
 
 ### Feat
