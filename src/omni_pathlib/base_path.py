@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Any, AsyncIterator, Iterator, TypeVar
 from datetime import datetime
 from dataclasses import dataclass
-from omni_pathlib.utils import join_paths, is_absolute_path
+from omni_pathlib.utils.join_paths import join_paths
 from omni_pathlib.utils.guess_protocol import guess_protocol
 from omni_pathlib.utils.parse_url import PathInfo, parse_url
+from omni_pathlib.utils.is_absolute_path import is_absolute_path
 
 
 @dataclass
