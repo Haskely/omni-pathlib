@@ -146,4 +146,4 @@ def test_local_path_join(temp_dir):
 
     # 测试连续斜杠的处理
     slash_path = base_path / "subdir/" / "/file.txt"
-    assert str(slash_path) == os.path.join(temp_dir, "subdir/", "/file.txt")
+    assert str(slash_path) == "/file.txt"
