@@ -1,5 +1,6 @@
 # Omni-Pathlib
 
+[中文文档](README_ZH.md)
 [![PyPI version](https://img.shields.io/pypi/v/omni-pathlib.svg)](https://pypi.org/project/omni-pathlib/)
 [![Python Version](https://img.shields.io/pypi/pyversions/omni-pathlib.svg)](https://pypi.org/project/omni-pathlib/)
 [![License](https://img.shields.io/github/license/Haskely/omni-pathlib.svg)](https://github.com/Haskely/omni-pathlib/blob/main/LICENSE)
@@ -12,153 +13,153 @@
 [![Code Quality](https://app.codacy.com/project/badge/Grade/YOUR_PROJECT_ID)](https://app.codacy.com/gh/Haskely/omni-pathlib/) -->
 [![Dependencies](https://img.shields.io/librariesio/github/Haskely/omni-pathlib)](https://libraries.io/github/Haskely/omni-pathlib)
 
-Omni-Pathlib 是一个统一的路径处理库，支持本地文件系统、HTTP 和 S3 存储的路径操作。它提供了同步和异步 API，使得在不同存储系统间操作文件变得简单统一。
+Omni-Pathlib is a unified path handling library that supports path operations for local file systems, HTTP, and S3 storage. It provides both synchronous and asynchronous APIs, making it easy and consistent to operate files across different storage systems.
 
-## 安装
+## Installation
 
 ```bash
 pip install omni-pathlib
 ```
 
-## 基本用法
+## Basic Usage
 
 ```python
 from omni_pathlib import OmniPath
 
-# 创建不同类型的路径
+# Create different types of paths
 http_path = OmniPath("https://example.com/file.txt")
 s3_path = OmniPath("s3://my-bucket/path/to/file.txt")
 local_path = OmniPath("/local/path/to/file.txt")
 
-# 读取文件内容
-content = http_path.read_text()  # 从 HTTP 读取
-s3_content = s3_path.read_text()  # 从 S3 读取
-local_content = local_path.read_text()  # 从本地读取
+# Read file content
+content = http_path.read_text()  # Read from HTTP
+s3_content = s3_path.read_text()  # Read from S3
+local_content = local_path.read_text()  # Read from local
 
-# 异步操作
+# Asynchronous operations
 async def main():
     content = await http_path.async_read_text()
     s3_content = await s3_path.async_read_text()
     local_content = await local_path.async_read_text()
 ```
 
-## 特性
+## Features
 
-- 统一的路径操作接口
-- 支持本地文件系统、HTTP 和 S3 存储
-- 同步和异步 API
-- HTTP 支持缓存和断点续传
-- S3 支持完整的存储桶操作
-- 本地文件系统支持标准的路径操作
+- Unified path operation interface
+- Supports local file systems, HTTP, and S3 storage
+- Synchronous and asynchronous APIs
+- HTTP supports caching and resuming downloads
+- S3 supports complete bucket operations
+- Local file system supports standard path operations
 
-## 函数接口说明
+## Function Interface Description
 
-### 基础操作
+### Basic Operations
 
-所有存储类型都支持以下操作：
+All storage types support the following operations:
 
 ```python
-# 路径属性
-path.name      # 获取路径名称
-path.stem      # 获取不带后缀的路径名称
-path.suffix    # 获取路径后缀
-path.parent    # 获取父路径
-path.protocol  # 获取协议类型（'file'、'http'、's3'）
+# Path attributes
+path.name      # Get the path name
+path.stem      # Get the path name without suffix
+path.suffix    # Get the path suffix
+path.parent    # Get the parent path
+path.protocol  # Get the protocol type ('file', 'http', 's3')
 
-# 基础操作
-path.exists()              # 检查路径是否存在
-path.iterdir()            # 遍历目录内容
-path.stat()               # 获取文件信息（大小、修改时间等）
-path.read_bytes()         # 读取二进制内容
-path.read_text()          # 读取文本内容
-path.write_bytes(data)    # 写入二进制内容
-path.write_text(data)     # 写入文本内容
-path.delete()             # 删除文件
+# Basic operations
+path.exists()             # Check if the path exists
+path.iterdir()            # Iterate through directory contents
+path.stat()               # Get file information (size, modification time, etc.)
+path.read_bytes()         # Read binary content
+path.read_text()          # Read text content
+path.write_bytes(data)    # Write binary content
+path.write_text(data)     # Write text content
+path.delete()             # Delete file
 
-# 所有操作都有对应的异步版本
+# All operations have corresponding asynchronous versions
 await path.async_exists()
 await path.async_iterdir()
-# ... 等等
+# ... and so on
 ```
 
-### 本地文件系统特有操作
+### Local File System Specific Operations
 
-- `mkdir(parents=False, exist_ok=False)` / `async_mkdir()` - 创建目录
-- `rmdir()` / `async_rmdir()` - 删除空目录
-- `rename(target)` / `async_rename(target)` - 重命名文件/目录
-- `is_dir()` / `async_is_dir()` - 检查是否为目录
-- `is_file()` / `async_is_file()` - 检查是否为文件
+- `mkdir(parents=False, exist_ok=False)` / `async_mkdir()` - Create a directory
+- `rmdir()` / `async_rmdir()` - Remove an empty directory
+- `rename(target)` / `async_rename(target)` - Rename a file/directory
+- `is_dir()` / `async_is_dir()` - Check if it is a directory
+- `is_file()` / `async_is_file()` - Check if it is a file
 
-### HTTP 特有功能
+### HTTP Specific Features
 
-- 支持断点续传
-- 自动缓存下载内容
-- 不支持写入和删除操作
+- Supports resuming downloads
+- Automatically caches downloaded content
+- Does not support write and delete operations
 
-### S3 特有功能
+### S3 Specific Features
 
-- 完整支持 S3 存储桶操作
-- 支持自定义 endpoint
-- 支持多种认证方式
-- 支持在 URL scheme 中指定 profile
+- Fully supports S3 bucket operations
+- Supports custom endpoints
+- Supports multiple authentication methods
+- Supports specifying profile in URL scheme
 
-#### S3 Profile 配置优先级
+#### S3 Profile Configuration Priority
 
-配置优先级从高到低：
+Configuration priority from high to low:
 
-1. 通过参数直接传入的配置
-2. 通过 URL scheme 指定的 profile（例如：`s3+my_profile://bucket/key`）
-3. 通过环境变量 `AWS_PROFILE` 配置
-4. 配置文件中的 `default` profile
-5. 配置文件中的第一个 profile
+1. Configuration passed directly as parameters
+2. Profile specified in URL scheme (e.g., `s3+my_profile://bucket/key`)
+3. Configuration through environment variable `AWS_PROFILE`
+4. `default` profile in configuration file
+5. The first profile found in the configuration file
 
-#### S3 URL Scheme 示例
+#### S3 URL Scheme Example
 
 ```python
-# 参数优先级高于 URL scheme
+# Parameter priority is higher than URL scheme
 path = OmniPath(
     "s3+my_profile://bucket/key",
-    profile_name="other_profile"  # 将使用 other_profile 而不是 my_profile
+    profile_name="other_profile"  # Will use other_profile instead of my_profile
 )
 
-# 通过 URL scheme 指定 profile
-path = OmniPath("s3+my_profile://bucket/key")  # 将使用 my_profile 配置
+# Specify profile through URL scheme
+path = OmniPath("s3+my_profile://bucket/key")  # Will use my_profile configuration
 
-# 通过环境变量指定 profile
+# Specify profile through environment variable
 os.environ["AWS_PROFILE"] = "other_profile"
-path = OmniPath("s3://bucket/key")  # 将使用 other_profile 配置
+path = OmniPath("s3://bucket/key")  # Will use other_profile configuration
 
-# 通过配置文件指定 profile
-path = OmniPath("s3://bucket/key")  # 将使用 default 配置（如果存在）或者找到的第一个配置
+# Specify profile through configuration file
+path = OmniPath("s3://bucket/key")  # Will use default configuration (if exists) or the first found configuration
 ```
 
-#### S3 Profiles 获取逻辑
+#### S3 Profiles Retrieval Logic
 
-- 从环境变量 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL` 获取环境变量配置，这些配置默认会覆盖到名为 `default` profile 中，但是可以通过添加前缀指定到其他名字的 profile 中，例如：`my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` 会放到名为 `my_profile` 的 profile 中
-- 从环境变量 `AWS_SHARED_CREDENTIALS_FILE` 获取配置文件路径并加载配置，默认 `~/.aws/credentials`
+- Retrieve environment variable configurations from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `OSS_ENDPOINT`, `S3_ENDPOINT`, `AWS_ENDPOINT_URL`. These configurations will default to the `default` profile but can be specified to other named profiles by adding a prefix, e.g., `my_profile__AWS_ACCESS_KEY_ID=my_access_key_id` will go into the profile named `my_profile`.
+- Load configurations from the configuration file path obtained from the environment variable `AWS_SHARED_CREDENTIALS_FILE`, defaulting to `~/.aws/credentials`.
 
-## 开发
+## Development
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
 uv sync
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
 uv run pytest
 ```
 
-### commit
+### Commit
 
 ```bash
 pre-commit install
 cz commit
 ```
 
-### 发布
+### Release
 
 ```bash
 cz bump
