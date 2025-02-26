@@ -1,3 +1,9 @@
+## v0.3.3 (2025-02-26)
+
+### Fix
+
+- **dependencies**: Move loguru from dev to main dependencies
+
 ## v0.3.2 (2025-02-26)
 
 ## v0.3.1 (2025-01-21)
