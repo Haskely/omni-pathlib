@@ -261,7 +261,7 @@ def listdir_iter(
     if key and not key.endswith("/"):
         key += "/"
 
-    for response in list_objects_iter(
+    yield from list_objects_iter(
         bucket=bucket,
         prefix=key,
         endpoint=endpoint,
@@ -271,8 +271,7 @@ def listdir_iter(
         delimiter="/",
         max_keys=max_keys,
         is_sign_payload=is_sign_payload,
-    ):
-        yield response
+    )
 
 
 def head_object(
@@ -393,9 +392,7 @@ def delete_objects(
     host = endpoint.replace("https://", "").replace("http://", "")
 
     objects_xml = "".join([f"<Object><Key>{key}</Key></Object>" for key in keys])
-    payload = f'<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>false</Quiet>{objects_xml}</Delete>'.encode(
-        "utf-8"
-    )
+    payload = f'<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>false</Quiet>{objects_xml}</Delete>'.encode()
 
     headers = {
         "Content-Type": "application/xml",
@@ -463,7 +460,7 @@ def create_bucket(
         location_constraint = f"""<?xml version="1.0" encoding="UTF-8"?>
             <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
                 <LocationConstraint>{region}</LocationConstraint>
-            </CreateBucketConfiguration>""".encode("utf-8")
+            </CreateBucketConfiguration>""".encode()
 
     headers = {
         "Content-Type": "application/xml",

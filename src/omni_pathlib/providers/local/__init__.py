@@ -36,9 +36,9 @@ class LocalPath(BasePath):
         return FileInfo(
             size=stat.st_size,
             modified=datetime.fromtimestamp(stat.st_mtime),
-            metadata=dict(
-                (key, getattr(stat, key)) for key in dir(stat) if key.startswith("st_")
-            ),
+            metadata={
+                key: getattr(stat, key) for key in dir(stat) if key.startswith("st_")
+            },
         )
 
     async def async_stat(self) -> FileInfo:
@@ -46,9 +46,9 @@ class LocalPath(BasePath):
         return FileInfo(
             size=stat.st_size,
             modified=datetime.fromtimestamp(stat.st_mtime),
-            metadata=dict(
-                (key, getattr(stat, key)) for key in dir(stat) if key.startswith("st_")
-            ),
+            metadata={
+                key: getattr(stat, key) for key in dir(stat) if key.startswith("st_")
+            },
         )
 
     def read_bytes(self) -> bytes:

@@ -433,9 +433,7 @@ async def delete_objects(
     host, uri = _prepare_request_params(bucket, "", endpoint)
 
     objects_xml = "".join([f"<Object><Key>{key}</Key></Object>" for key in keys])
-    payload = f'<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>false</Quiet>{objects_xml}</Delete>'.encode(
-        "utf-8"
-    )
+    payload = f'<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>false</Quiet>{objects_xml}</Delete>'.encode()
 
     headers = {
         "Content-Type": "application/xml",
@@ -510,7 +508,7 @@ async def create_bucket(
         location_constraint = f"""<?xml version="1.0" encoding="UTF-8"?>
             <CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
                 <LocationConstraint>{region}</LocationConstraint>
-            </CreateBucketConfiguration>""".encode("utf-8")
+            </CreateBucketConfiguration>""".encode()
 
     headers = {
         "Content-Type": "application/xml",

@@ -28,8 +28,11 @@ on:
 env:
   PYPI_PROJECT_NAME: omni_pathlib
 
+permissions: {}  # 默认禁用所有权限
 jobs:
   test:
+    permissions:
+      contents: read  # 只需读取权限
     uses: ./.github/workflows/test.yml
 
   check-tag:
@@ -38,14 +41,18 @@ jobs:
     name: Check Tag
     if: github.ref_type == 'tag' # only publish to PyPI on tag pushes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check Tag
         id: check-tag
+        env:
+          GITHUB_REF: ${{ github.event.ref }}
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "PEP_0440_final_match=true" >> $GITHUB_OUTPUT
           fi
-          if [[ ${{ github.event.ref }} =~ ^refs\/tags\/v([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$ ]]; then
+          if [[ "$GITHUB_REF" =~ ^refs\/tags\/v([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$ ]]; then
               echo "PEP_0440_match=true" >> $GITHUB_OUTPUT
           fi
     outputs:
@@ -60,6 +67,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # 防止凭证持久化
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -73,7 +82,7 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: python3 -m build
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
@@ -126,22 +135,34 @@ jobs:
             ./dist/*.whl
       - name: Create GitHub Release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create
-          '${{ github.ref_name }}'
-          --repo '${{ github.repository }}'
-          --notes ""
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "${VERSION_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "Invalid version format"
+            exit 1
+          fi
+          ESCAPED_TAG=$(printf '%q' "${VERSION_TAG}")
+
+          gh release create \
+            "${ESCAPED_TAG}" \
+            --repo '${{ github.repository }}' \
+            --notes "Release ${ESCAPED_TAG}"
+
       - name: Upload artifact signatures to GitHub Release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        # Upload to GitHub Release using the `gh` CLI.
-        # `dist/` contains the built packages, and the
-        # sigstore-produced signatures and certificates.
-        run: >-
-          gh release upload
-          '${{ github.ref_name }}' dist/**
-          --repo '${{ github.repository }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "${VERSION_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "Invalid version format"
+            exit 1
+          fi
+          ESCAPED_TAG=$(printf '%q' "${VERSION_TAG}")
+
+          gh release upload \
+            "${ESCAPED_TAG}" dist/** \
+            --repo '${{ github.repository }}'
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
