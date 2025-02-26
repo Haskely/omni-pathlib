@@ -11,6 +11,7 @@ dependencies = [
     "aiohttp>=3.11.11",
     "aiopath>=0.6.11",
     "curl-cffi>=0.7.4",
+    "loguru>=0.7.3",
     "rich>=13.9.4",
     "xmltodict>=0.14.2",
 ]
@@ -39,7 +40,6 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "commitizen>=3.18.4",
-    "loguru>=0.7.3",
     "moto[server]>=5.0.26",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",

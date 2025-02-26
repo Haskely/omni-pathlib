@@ -1137,13 +1137,14 @@ wheels = [
 
 [[package]]
 name = "omni-pathlib"
-version = "0.3.2"
+version = "0.3.3.dev1+g08d210c.d20250226"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
     { name = "aiopath", version = "0.6.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "aiopath", version = "0.7.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "curl-cffi" },
+    { name = "loguru" },
     { name = "rich" },
     { name = "xmltodict" },
 ]
@@ -1151,7 +1152,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "commitizen" },
-    { name = "loguru" },
     { name = "moto", extra = ["server"] },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -1164,6 +1164,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.11.11" },
     { name = "aiopath", specifier = ">=0.6.11" },
     { name = "curl-cffi", specifier = ">=0.7.4" },
+    { name = "loguru", specifier = ">=0.7.3" },
     { name = "rich", specifier = ">=13.9.4" },
     { name = "xmltodict", specifier = ">=0.14.2" },
 ]
@@ -1171,7 +1172,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "commitizen", specifier = ">=3.18.4" },
-    { name = "loguru", specifier = ">=0.7.3" },
     { name = "moto", extras = ["server"], specifier = ">=5.0.26" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest", specifier = ">=8.3.4" },
