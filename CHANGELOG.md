@@ -1,3 +1,9 @@
+## v0.3.5 (2025-02-27)
+
+### Fix
+
+- **tests**: Update event loop policy for cross-platform compatibility
+
 ## v0.3.4 (2025-02-27)
 
 ### Fix
