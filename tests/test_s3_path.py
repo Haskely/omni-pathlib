@@ -6,9 +6,12 @@ from omni_pathlib.providers.s3 import S3Path
 @pytest.fixture(scope="module")
 def moto_server():
     """创建 Moto 服务器实例"""
-    server = ThreadedMotoServer()
+    server = ThreadedMotoServer(port=0)
     server.start()
-    yield "http://localhost:5000"
+    host, port = server.get_host_and_port()
+    if host == "0.0.0.0":
+        host = "localhost"
+    yield f"http://{host}:{port}"
     server.stop()
 
 
@@ -143,6 +146,9 @@ def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
     assert path.exists()
     assert path.read_text() == "通过 profile 写入的内容"
     assert path.profile_name == "test_profile"
+    for item in path.iterdir():
+        assert item.scheme == "s3+test_profile"
+        assert item.profile_name == "test_profile"
 
     # 测试 profile 优先级：参数优先于 URL scheme
     path_with_both = S3Path(
@@ -178,3 +184,6 @@ async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
     assert await path.async_exists()
     assert await path.async_read_text() == "异步通过 profile 写入的内容"
     assert path.profile_name == "async_test_profile"
+    for item in path.iterdir():
+        assert item.scheme == "s3+async_test_profile"
+        assert item.profile_name == "async_test_profile"

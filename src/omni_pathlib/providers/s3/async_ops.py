@@ -543,10 +543,14 @@ if __name__ == "__main__":
     import json
     from moto.server import ThreadedMotoServer
 
-    server = ThreadedMotoServer()
+    server = ThreadedMotoServer(port=0)
+    server.start()
+    host, port = server.get_host_and_port()
+    if host == "0.0.0.0":
+        host = "localhost"
 
     credentials = {
-        "endpoint_url": "http://localhost:5000",
+        "endpoint_url": f"http://{host}:{port}",
         "region": "unknown",
         "aws_access_key_id": "test",
         "aws_secret_access_key": "test",
@@ -570,7 +574,6 @@ if __name__ == "__main__":
     async def setup_test_env():
         """创建测试环境"""
         print("正在创建测试环境...")
-        server.start()
 
         await create_bucket(bucket, endpoint, region, ak, sk)
 
