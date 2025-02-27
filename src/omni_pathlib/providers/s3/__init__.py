@@ -61,7 +61,7 @@ class S3Path(BasePath):
         if parts := self.path_info.parts:
             self.bucket, self.key = parts[0], "/".join(parts[1:])
         else:
-            raise ValueError(f"Invalid path: {path} because it has empty parts")
+            raise ValueError(f"Invalid path: {self.path} because it has empty parts")
 
         # 获取并验证 profile_name
         self.profile_name = self._get_profile_name(profile_name, self.path_info.scheme)

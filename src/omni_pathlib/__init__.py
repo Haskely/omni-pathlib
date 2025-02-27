@@ -4,6 +4,8 @@ from omni_pathlib.utils.guess_protocol import guess_protocol
 
 def OmniPath(path: str) -> HttpPath | S3Path | LocalPath:
     """智能路径类"""
+
+    path = str(path)
     match protocol := guess_protocol(path):
         case "http":
             return HttpPath(path)

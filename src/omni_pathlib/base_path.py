@@ -88,8 +88,8 @@ class BasePath(ABC):
         return self.__class__(final_path, **self.kwargs)
 
     def __init__(self, path: str) -> None:
-        self._path = path
-        self._path_info = parse_url(path)
+        self._path = str(path)
+        self._path_info = parse_url(self._path)
 
     @abstractmethod
     def exists(self) -> bool:
