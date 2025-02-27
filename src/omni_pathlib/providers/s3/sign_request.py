@@ -41,7 +41,7 @@ def sign_request(
     date_stamp = now.strftime("%Y%m%d")
 
     # 准备规范请求
-    canonical_uri = uri
+    canonical_uri = urllib.parse.quote(uri, safe="/")
     canonical_querystring = ""
     if query_params:
         # 严格按照字典序排序

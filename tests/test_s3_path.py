@@ -41,14 +41,14 @@ def s3_config(moto_server):
 
 def test_s3_path_basic(test_bucket, s3_config):
     """测试 S3Path 的基本功能"""
-    path = S3Path(f"s3://{test_bucket}/test.txt", **s3_config)
+    path = S3Path(f"s3://{test_bucket}/test-测试.txt", **s3_config)
     path.write_text("测试内容")
 
     assert path.exists()
     assert path.read_text() == "测试内容"
 
     # 测试写入操作
-    new_path = S3Path(f"s3://{test_bucket}/new.txt", **s3_config)
+    new_path = S3Path(f"s3://{test_bucket}/new-新文件.txt", **s3_config)
     new_path.write_text("新内容")
     assert new_path.exists()
     assert new_path.read_text() == "新内容"
@@ -57,14 +57,14 @@ def test_s3_path_basic(test_bucket, s3_config):
 @pytest.mark.asyncio
 async def test_s3_path_async(test_bucket, s3_config):
     """测试 S3Path 的异步功能"""
-    path = S3Path(f"s3://{test_bucket}/async_test.txt", **s3_config)
+    path = S3Path(f"s3://{test_bucket}/async_test-异步测试.txt", **s3_config)
     await path.async_write_text("异步测试内容")
 
     assert await path.async_exists()
     assert await path.async_read_text() == "异步测试内容"
 
     # 测试异步写入
-    new_path = S3Path(f"s3://{test_bucket}/async_new.txt", **s3_config)
+    new_path = S3Path(f"s3://{test_bucket}/async_new-异步新文件.txt", **s3_config)
     await new_path.async_write_text("异步新内容")
     assert await new_path.async_exists()
     assert await new_path.async_read_text() == "异步新内容"
@@ -74,11 +74,11 @@ def test_s3_path_iterdir(test_bucket, s3_config):
     """测试目录遍历功能"""
     # 创建测试文件结构
     files = [
-        "dir1/file1.txt",
-        "dir1/file2.txt",
-        "dir2/file3.txt",
-        "file4.txt",
-        "file5.txt",
+        "dir1/file1-文件1.txt",
+        "dir1/file2-文件2.txt",
+        "dir2/file3-文件3.txt",
+        "file4-文件4.txt",
+        "file5-文件5.txt",
     ]
 
     for file_path in files:
@@ -92,8 +92,8 @@ def test_s3_path_iterdir(test_bucket, s3_config):
     target_items = {
         "s3://test-bucket/dir1/",
         "s3://test-bucket/dir2/",
-        "s3://test-bucket/file4.txt",
-        "s3://test-bucket/file5.txt",
+        "s3://test-bucket/file4-文件4.txt",
+        "s3://test-bucket/file5-文件5.txt",
     }
     assert target_items.issubset(items), f"extra items: {target_items - items}"
 
@@ -103,8 +103,8 @@ def test_s3_path_iterdir(test_bucket, s3_config):
     print("DEBUG: items", items)
     # FIXME: 这里返回的 items 是空的
     target_items = {
-        "s3://test-bucket/dir1/file1.txt",
-        "s3://test-bucket/dir1/file2.txt",
+        "s3://test-bucket/dir1/file1-文件1.txt",
+        "s3://test-bucket/dir1/file2-文件2.txt",
     }
     assert target_items.issubset(items), f"extra items: {target_items - items}"
 
@@ -113,7 +113,11 @@ def test_s3_path_iterdir(test_bucket, s3_config):
 async def test_s3_path_async_iterdir(test_bucket, s3_config):
     """测试异步目录遍历功能"""
     # 创建测试文件结构
-    files = ["async_dir1/file1.txt", "async_dir1/file2.txt", "async_dir2/file3.txt"]
+    files = [
+        "async_dir1/file1-文件1.txt",
+        "async_dir1/file2-文件2.txt",
+        "async_dir2/file3-文件3.txt",
+    ]
     for file_path in files:
         path = S3Path(f"s3://{test_bucket}/{file_path}", **s3_config)
         path.write_text("content")
