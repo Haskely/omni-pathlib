@@ -1,3 +1,11 @@
+## v0.3.4 (2025-02-27)
+
+### Fix
+
+- **tests**: Configure Windows event loop policy for async testing
+- **s3**: Improve Moto server configuration for dynamic port allocation
+- **s3**: Fix S3Path path scheme handling when iterdir
+
 ## v0.3.3 (2025-02-26)
 
 ### Fix
