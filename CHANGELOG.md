@@ -1,3 +1,9 @@
+## v0.3.6 (2025-02-27)
+
+### Fix
+
+- **s3**: URL-encode S3 URI to handle special characters
+
 ## v0.3.5 (2025-02-27)
 
 ### Fix
