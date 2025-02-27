@@ -11,3 +11,9 @@ wheels/
 
 # study
 study/
+
+# mypy
+.mypy_cache
+
+# ruff
+.ruff_cache
