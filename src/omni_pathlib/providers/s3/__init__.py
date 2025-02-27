@@ -58,15 +58,13 @@ class S3Path(BasePath):
         super().__init__(path)
 
         # 解析 bucket 和 key
-        scheme, rest = path.split("://", 1)
-        if len(parts := rest.split("/", 1)) == 2:
-            self.bucket, self.key = parts
+        if parts := self.path_info.parts:
+            self.bucket, self.key = parts[0], "/".join(parts[1:])
         else:
-            self.bucket = rest
-            self.key = ""
+            raise ValueError(f"Invalid path: {path} because it has empty parts")
 
         # 获取并验证 profile_name
-        self.profile_name = self._get_profile_name(profile_name, scheme)
+        self.profile_name = self._get_profile_name(profile_name, self.path_info.scheme)
         _profile = CREDENTIALS[self.profile_name] if self.profile_name else {}
 
         if (endpoint_url := (endpoint_url or _profile.get("endpoint_url"))) is None:
@@ -158,13 +156,17 @@ class S3Path(BasePath):
             for prefix in response.get("CommonPrefixes", []):
                 if prefix.get("Prefix"):
                     yield S3Path(
-                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.kwargs
+                        f"{self.path_info.scheme}://{self.bucket}/{prefix['Prefix']}",
+                        **self.kwargs,
                     )
 
             # 处理文件
             for item in response.get("Contents", []):
                 if item.get("Key"):
-                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.kwargs)
+                    yield S3Path(
+                        f"{self.path_info.scheme}://{self.bucket}/{item['Key']}",
+                        **self.kwargs,
+                    )
 
     async def async_iterdir(self) -> AsyncIterator["BasePath"]:
         """异步遍历目录"""
@@ -180,13 +182,17 @@ class S3Path(BasePath):
             for prefix in response.get("CommonPrefixes", []):
                 if prefix.get("Prefix"):
                     yield S3Path(
-                        f"s3://{self.bucket}/{prefix['Prefix']}", **self.kwargs
+                        f"{self.path_info.scheme}://{self.bucket}/{prefix['Prefix']}",
+                        **self.kwargs,
                     )
 
             # 处理文件
             for item in response.get("Contents", []):
                 if item.get("Key"):
-                    yield S3Path(f"s3://{self.bucket}/{item['Key']}", **self.kwargs)
+                    yield S3Path(
+                        f"{self.path_info.scheme}://{self.bucket}/{item['Key']}",
+                        **self.kwargs,
+                    )
 
     def stat(self) -> FileInfo:
         """获取文件信息"""
