@@ -44,11 +44,6 @@ def upload_file(
     uri = f"/{bucket}/{key}"
     host = endpoint.replace("https://", "").replace("http://", "")
 
-    headers = {
-        "Content-Type": "application/octet-stream",
-        "Content-Length": str(len(data)),
-    }
-
     signed_headers = sign_request(
         method="PUT",
         host=host,
@@ -56,7 +51,6 @@ def upload_file(
         access_key=access_key,
         secret_key=secret_key,
         uri=uri,
-        headers=headers,
         payload=data if is_sign_payload else None,
     )
 
@@ -407,11 +401,6 @@ def delete_objects(
     objects_xml = "".join([f"<Object><Key>{key}</Key></Object>" for key in keys])
     payload = f'<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>false</Quiet>{objects_xml}</Delete>'.encode()
 
-    headers = {
-        "Content-Type": "application/xml",
-        "Content-Length": str(len(payload)),
-    }
-
     query_params = {"delete": ""}
 
     signed_result = sign_request(
@@ -421,7 +410,6 @@ def delete_objects(
         access_key=access_key,
         secret_key=secret_key,
         uri=uri,
-        headers=headers,
         query_params=query_params,
         payload=payload if is_sign_payload else None,
     )
@@ -478,11 +466,6 @@ def create_bucket(
                 <LocationConstraint>{region}</LocationConstraint>
             </CreateBucketConfiguration>""".encode()
 
-    headers = {
-        "Content-Type": "application/xml",
-        "Content-Length": str(len(location_constraint)),
-    }
-
     signed_headers = sign_request(
         method="PUT",
         host=host,
@@ -490,7 +473,6 @@ def create_bucket(
         access_key=access_key,
         secret_key=secret_key,
         uri=uri,
-        headers=headers,
         payload=location_constraint if is_sign_payload else None,
     )
 
