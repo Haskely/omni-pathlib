@@ -1,3 +1,14 @@
+## v0.3.8 (2025-02-28)
+
+### Fix
+
+- **s3**: Remove redundant headers in sign_request calls
+
+### Refactor
+
+- **s3**: Simplify text encoding to use default UTF-8
+- Expose BasePath in package initialization
+
 ## v0.3.7 (2025-02-28)
 
 ### Fix
