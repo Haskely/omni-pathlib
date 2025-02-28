@@ -9,6 +9,7 @@ from omni_pathlib.providers.s3.type_hints import (
 from omni_pathlib.utils.raise_for_status_with_text import (
     curl_cffi_raise_for_status_with_text,
 )
+from urllib.parse import urljoin
 
 
 DEFAULT_IS_SIGN_PAYLOAD = False
@@ -60,7 +61,9 @@ def upload_file(
     )
 
     response = requests.put(
-        f"{endpoint}{uri}", data=data, headers=signed_headers["headers"]
+        urljoin(endpoint, signed_headers["signed_url"]),
+        data=data,
+        headers=signed_headers["headers"],
     )
     curl_cffi_raise_for_status_with_text(response)
     return True
@@ -103,7 +106,10 @@ def download_file(
         payload=b"" if is_sign_payload else None,
     )
 
-    response = requests.get(f"{endpoint}{uri}", headers=signed_headers["headers"])
+    response = requests.get(
+        urljoin(endpoint, signed_headers["signed_url"]),
+        headers=signed_headers["headers"],
+    )
     curl_cffi_raise_for_status_with_text(response)
     return response.content
 
@@ -161,8 +167,9 @@ def list_objects(
         payload=b"" if is_sign_payload else None,
     )
 
-    url = f"{endpoint}{signed_result['signed_url']}"
-    response = requests.get(url, headers=signed_result["headers"])
+    response = requests.get(
+        urljoin(endpoint, signed_result["signed_url"]), headers=signed_result["headers"]
+    )
     curl_cffi_raise_for_status_with_text(response)
     _result = xmltodict.parse(response.text)
     assert len(_result) == 1, f"response should be a single dict, but got {_result}"
@@ -311,7 +318,10 @@ def head_object(
         payload=b"" if is_sign_payload else None,
     )
 
-    response = requests.head(f"{endpoint}{uri}", headers=signed_headers["headers"])
+    response = requests.head(
+        urljoin(endpoint, signed_headers["signed_url"]),
+        headers=signed_headers["headers"],
+    )
     curl_cffi_raise_for_status_with_text(response)
 
     return {
@@ -359,7 +369,10 @@ def delete_object(
         payload=b"" if is_sign_payload else None,
     )
 
-    response = requests.delete(f"{endpoint}{uri}", headers=signed_headers["headers"])
+    response = requests.delete(
+        urljoin(endpoint, signed_headers["signed_url"]),
+        headers=signed_headers["headers"],
+    )
     curl_cffi_raise_for_status_with_text(response)
     return response.status_code == 204
 
@@ -413,8 +426,11 @@ def delete_objects(
         payload=payload if is_sign_payload else None,
     )
 
-    url = f"{endpoint}{signed_result['signed_url']}"
-    response = requests.post(url, data=payload, headers=signed_result["headers"])
+    response = requests.post(
+        urljoin(endpoint, signed_result["signed_url"]),
+        data=payload,
+        headers=signed_result["headers"],
+    )
     curl_cffi_raise_for_status_with_text(response)
 
     _result = xmltodict.parse(response.text)
@@ -479,7 +495,9 @@ def create_bucket(
     )
 
     response = requests.put(
-        f"{endpoint}{uri}", data=location_constraint, headers=signed_headers["headers"]
+        urljoin(endpoint, signed_headers["signed_url"]),
+        data=location_constraint,
+        headers=signed_headers["headers"],
     )
     curl_cffi_raise_for_status_with_text(response)
     if "Error" in response.text:

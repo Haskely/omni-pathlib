@@ -13,7 +13,7 @@ from omni_pathlib.providers.s3.type_hints import (
 from omni_pathlib.utils.raise_for_status_with_text import (
     aiohttp_raise_for_status_with_text,
 )
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 DEFAULT_IS_SIGN_PAYLOAD = False
 
@@ -87,7 +87,9 @@ async def upload_file(
 
     async with aiohttp.ClientSession() as session:
         async with session.put(
-            f"{endpoint}{uri}", data=data, headers=signed_headers["headers"]
+            urljoin(endpoint, signed_headers["signed_url"]),
+            data=data,
+            headers=signed_headers["headers"],
         ) as response:
             return response.status == 200
 
@@ -130,7 +132,8 @@ async def download_file(
 
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"{endpoint}{uri}", headers=signed_headers["headers"]
+            urljoin(endpoint, signed_headers["signed_url"]),
+            headers=signed_headers["headers"],
         ) as response:
             if response.status == 200:
                 return await response.read()
@@ -191,10 +194,11 @@ async def list_objects(
     )
 
     # 使用签名函数返回的 URL 和 headers
-    url = f"{endpoint}{signed_result['signed_url']}"
-
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=signed_result["headers"]) as response:
+        async with session.get(
+            urljoin(endpoint, signed_result["signed_url"]),
+            headers=signed_result["headers"],
+        ) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
 
@@ -350,7 +354,8 @@ async def head_object(
 
     async with aiohttp.ClientSession() as session:
         async with session.head(
-            f"{endpoint}{uri}", headers=signed_headers["headers"]
+            urljoin(endpoint, signed_headers["signed_url"]),
+            headers=signed_headers["headers"],
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             return {
@@ -400,7 +405,8 @@ async def delete_object(
 
     async with aiohttp.ClientSession() as session:
         async with session.delete(
-            f"{endpoint}{uri}", headers=signed_headers["headers"]
+            urljoin(endpoint, signed_headers["signed_url"]),
+            headers=signed_headers["headers"],
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             return response.status == 204  # S3 删除成功返回 204 No Content
@@ -454,11 +460,11 @@ async def delete_objects(
         payload=payload if is_sign_payload else None,
     )
 
-    url = f"{endpoint}{signed_result['signed_url']}"
-
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            url, data=payload, headers=signed_result["headers"]
+            urljoin(endpoint, signed_result["signed_url"]),
+            data=payload,
+            headers=signed_result["headers"],
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
@@ -484,7 +490,7 @@ async def create_bucket(
     access_key: str,
     secret_key: str,
     is_sign_payload: bool = DEFAULT_IS_SIGN_PAYLOAD,
-) -> bool:
+) -> str:
     """
     创建 S3 存储桶
 
@@ -497,7 +503,7 @@ async def create_bucket(
         is_sign_payload: 是否使用签名的 payload
 
     Returns:
-        bool: 创建是否成功
+        str: 创建存储桶的响应文本
     """
     host, uri = _prepare_request_params(bucket, None, endpoint)
 
@@ -528,7 +534,7 @@ async def create_bucket(
 
     async with aiohttp.ClientSession() as session:
         async with session.put(
-            f"{endpoint}{uri}",
+            urljoin(endpoint, signed_headers["signed_url"]),
             data=location_constraint,
             headers=signed_headers["headers"],
         ) as response:

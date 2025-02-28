@@ -106,5 +106,5 @@ def sign_request(
     return {
         "headers": headers,
         "canonical_querystring": canonical_querystring,
-        "signed_url": f"{uri}{'?' + canonical_querystring if canonical_querystring else ''}",
+        "signed_url": f"{canonical_uri}{'?' + canonical_querystring if canonical_querystring else ''}",
     }
