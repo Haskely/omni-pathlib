@@ -1,3 +1,10 @@
+## v0.3.7 (2025-02-28)
+
+### Fix
+
+- **s3**: Use canonical URI in signed URL generation
+- Ensure path is converted to string in path initialization
+
 ## v0.3.6 (2025-02-27)
 
 ### Fix

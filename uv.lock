@@ -270,30 +270,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.37.2"
+version = "1.37.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b3/75/afe885605fef5b624d68869864f9af2595ff0b646377e1fdc9bba35aa49b/boto3-1.37.2.tar.gz", hash = "sha256:d64491bd4142c2c6dfe44479bf89c4ab7fa8d00210c2aaa7361931e61898b608", size = 111201 }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/3f/135ec0771e6d0e1af2ad7023a15df6677d96112072838d948c9b5075efe1/boto3-1.37.3.tar.gz", hash = "sha256:21f3ce0ef111297e63a6eb998a25197b8c10982970c320d4c6e8db08be2157be", size = 111160 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a7/5d/e4d5ed68b3b2f421754cc5ea0b9276f0c1568cd1a45dd7df3aadce028f60/boto3-1.37.2-py3-none-any.whl", hash = "sha256:e58136d52d79425ce26c3c1578bf94d4b2e91ead55fed9f6950406ee9713e6af", size = 139345 },
+    { url = "https://files.pythonhosted.org/packages/62/8c/213511a505af2239a673de4de145d013379275c569185187922f93dbdf14/boto3-1.37.3-py3-none-any.whl", hash = "sha256:2063b40af99fd02f6228ff52397b552ff3353831edaf8d25cc04801827ab9794", size = 139344 },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.37.2"
+version = "1.37.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/39/20/5f8f74ac3db553f713d640d0af4131162846123c955ac7118e727ef7441b/botocore-1.37.2.tar.gz", hash = "sha256:3f460f3c32cd6d747d5897a9cbde011bf1715abc7bf0a6ea6fdb0b812df63287", size = 13568710 }
+sdist = { url = "https://files.pythonhosted.org/packages/74/fb/b243ab806d2e1e6b8a475b731cc59a1f1e4709eded4884b988a27bbc996b/botocore-1.37.3.tar.gz", hash = "sha256:fe8403eb55a88faf9b0f9da6615e5bee7be056d75e17af66c3c8f0a3b0648da4", size = 13574648 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/27/c579234944cb1e9a34e7803b3a45efa309d44280ba5e2b1069d604b2b266/botocore-1.37.2-py3-none-any.whl", hash = "sha256:5f59b966f3cd0c8055ef6f7c2600f7db5f8218071d992e5f95da3f9156d4370f", size = 13333985 },
+    { url = "https://files.pythonhosted.org/packages/88/54/772118f15b5990173aa5264946cc8c9ff70c8f02d72ee6d63167a985188c/botocore-1.37.3-py3-none-any.whl", hash = "sha256:d01bd3bf4c80e61fa88d636ad9f5c9f60a551d71549b481386c6b4efe0bb2b2e", size = 13342066 },
 ]
 
 [[package]]
@@ -493,7 +493,7 @@ wheels = [
 
 [[package]]
 name = "commitizen"
-version = "4.2.2"
+version = "4.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argcomplete" },
@@ -508,9 +508,9 @@ dependencies = [
     { name = "tomlkit" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1d/b7/44729c1e989fb901d0739471a9784ef8d161f545a1d0eb7c5d53631dd050/commitizen-4.2.2.tar.gz", hash = "sha256:eadf31514d6ce6a12537ccba095d3107f659ff99ae6159212d9de2a9d896dd76", size = 50678 }
+sdist = { url = "https://files.pythonhosted.org/packages/38/f8/35a9897adc35caf88ef078b2eeb328f102dc184c5dc41ad4b562d06d8cee/commitizen-4.3.0.tar.gz", hash = "sha256:bdcd18f7bbda811ce082684e69606cf8b95e784a23585078cc001897cc41976f", size = 50998 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/b3/e6b59862924acb36f63f47bac19a7ac12ef7a2f083d489d58c46be8484c5/commitizen-4.2.2-py3-none-any.whl", hash = "sha256:5b42228178ee999dbdd95c2bf0ea73f8f539e8ed4cad421c2fe0b55b16458d2f", size = 72631 },
+    { url = "https://files.pythonhosted.org/packages/60/44/bce8416ed52238bbf4a80b8e24df0794cc4d520a0e6f18898ff8089c3ad6/commitizen-4.3.0-py3-none-any.whl", hash = "sha256:6038abce79d81f0296f2589eb17c8c6a164949c46f7dbc9af5283d6a82d8131c", size = 73323 },
 ]
 
 [[package]]
@@ -791,14 +791,14 @@ wheels = [
 
 [[package]]
 name = "joserfc"
-version = "1.0.3"
+version = "1.0.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/ba/b78bde8ccd9c77d514300a2ae7751f7f44a6dcb7e598ebc4053c64b02caa/joserfc-1.0.3.tar.gz", hash = "sha256:bcbed6fdfeefb9dc3bcca827f7539c57b353d514fbddf6c722a1c35aea4eb499", size = 171980 }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/e4/4c649e364bafa7cd2dd44ab5c301a721d3ff4942c43feb562deded60b414/joserfc-1.0.4.tar.gz", hash = "sha256:dc3fc216cfcfc952d4c0d4b06c759a04711af0b667e5973adc47dbb1ba784127", size = 172055 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/cd/85ff27713e18ba7573349921981a411026f692d9ec19a35024741184b77d/joserfc-1.0.3-py3-none-any.whl", hash = "sha256:76c7efafb9b7bc635dd73e9e3819d393d952f042c24d6a98182759d39cbc743b", size = 61023 },
+    { url = "https://files.pythonhosted.org/packages/57/81/a61b8942d94ca222c9df901d2704d2746f49174727e64eb5cd0a21450f1e/joserfc-1.0.4-py3-none-any.whl", hash = "sha256:ecf3a5999f89d3a663485ab7c4f633541586d6f44e664ee760197299f39ed51b", size = 61070 },
 ]
 
 [[package]]
@@ -1137,7 +1137,7 @@ wheels = [
 
 [[package]]
 name = "omni-pathlib"
-version = "0.3.4.dev2+gf330914.d20250227"
+version = "0.3.8.dev0+g8b5c815.d20250228"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
