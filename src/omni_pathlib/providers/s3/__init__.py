@@ -258,12 +258,12 @@ class S3Path(BasePath):
 
     def read_text(self) -> str:
         """读取文件内容（文本）"""
-        return self.read_bytes().decode("utf-8")
+        return self.read_bytes().decode()
 
     async def async_read_text(self) -> str:
         """异步读取文件内容（文本）"""
         content = await self.async_read_bytes()
-        return content.decode("utf-8")
+        return content.decode()
 
     def write_bytes(self, data: bytes) -> None:
         """写入文件内容（字节）"""
@@ -291,11 +291,11 @@ class S3Path(BasePath):
 
     def write_text(self, data: str) -> None:
         """写入文件内容（文本）"""
-        self.write_bytes(data.encode("utf-8"))
+        self.write_bytes(data.encode())
 
     async def async_write_text(self, data: str) -> None:
         """异步写入文件内容（文本）"""
-        await self.async_write_bytes(data.encode("utf-8"))
+        await self.async_write_bytes(data.encode())
 
     def delete(self) -> None:
         """删除文件"""
