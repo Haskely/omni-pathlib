@@ -1,3 +1,9 @@
+## v0.3.9 (2025-04-02)
+
+### Refactor
+
+- Enhance type hints in BasePath and its implementations
+
 ## v0.3.8 (2025-02-28)
 
 ### Fix
