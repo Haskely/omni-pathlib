@@ -27,7 +27,7 @@ class HttpPath(BasePath):
 
     def close(self):
         self.session.close()
-        self.async_session.close()
+        _ = self.async_session.close()
 
     def _get_cache_path(self) -> Tuple[LocalPath, LocalPath]:
         """获取缓存文件路径和临时文件路径"""
@@ -54,10 +54,10 @@ class HttpPath(BasePath):
         except requests.RequestsError:
             return False
 
-    def iterdir(self):
+    def iterdir(self):  # type: ignore
         raise NotImplementedError(f"{self.path} does not support iterdir")
 
-    async def async_iterdir(self):
+    async def async_iterdir(self):  # type: ignore
         raise NotImplementedError(f"{self.path} does not support async_iterdir")
 
     def stat(self) -> FileInfo:
@@ -148,7 +148,7 @@ class HttpPath(BasePath):
             response.raise_for_status()
 
             with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
-                async for chunk in response.iter_content(chunk_size=8192):
+                async for chunk in response.aiter_content():
                     f.write(chunk)
 
             # 下载完成，重命名为正式缓存文件

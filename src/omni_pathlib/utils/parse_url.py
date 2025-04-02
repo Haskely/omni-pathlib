@@ -41,6 +41,8 @@ def parse_url(url: str) -> PathInfo:
 
     # 构建父路径
     parent = "/".join(parts[:-1]) if len(parts) > 1 else ""
+    if scheme:
+        parent = f"{scheme}://{parent}"
 
     return PathInfo(
         url=url,

@@ -29,7 +29,7 @@ def mock_server(httpserver: HTTPServer, test_content):
     )
 
     # 模拟支持断点续传的大文件
-    large_content = b"Large " * 1024
+    large_content = b"Large " * 8192
     httpserver.expect_request("/large.txt", method="HEAD").respond_with_data(
         "",
         headers={"content-length": str(len(large_content)), "accept-ranges": "bytes"},
@@ -114,7 +114,20 @@ def test_http_path_range_download(mock_server, tmp_path):
     # 下载文件
     content = path.read_bytes()
     assert content.startswith(b"Large ")
-    assert len(content) == 6 * 1024  # "Large " 是 6 字节，重复 1024 次
+    assert len(content) == 6 * 8192  # "Large " 是 6 字节，重复 8192 次
+
+
+@pytest.mark.asyncio
+async def test_http_path_range_download_async(mock_server, tmp_path):
+    """测试断点续传功能"""
+    url = f"http://{mock_server.host}:{mock_server.port}/large.txt"
+    cache_dir = str(tmp_path / "http_cache")
+    path = HttpPath(url, cache_dir=cache_dir)
+
+    # 下载文件
+    content2 = await path.async_read_bytes()
+    assert content2.startswith(b"Large ")
+    assert len(content2) == 6 * 8192  # "Large " 是 6 字节，重复 8192 次
 
 
 def test_http_path_unsupported_operations(mock_server):

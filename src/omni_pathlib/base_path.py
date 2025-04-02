@@ -102,12 +102,12 @@ class BasePath(ABC):
         pass
 
     @abstractmethod
-    def iterdir(self) -> Iterator["BasePath"]:
+    def iterdir(self: T) -> Iterator[T]:
         """遍历目录"""
         pass
 
     @abstractmethod
-    def async_iterdir(self) -> AsyncIterator["BasePath"]:
+    def async_iterdir(self: T) -> AsyncIterator[T]:
         """异步遍历目录"""
         pass
 
@@ -147,7 +147,7 @@ class BasePath(ABC):
         pass
 
     @abstractmethod
-    async def async_write_bytes(self, data: bytes) -> None:
+    async def async_write_bytes(self, data: bytes) -> int | None:
         """异步写入文件"""
         pass
 
@@ -157,7 +157,7 @@ class BasePath(ABC):
         pass
 
     @abstractmethod
-    async def async_write_text(self, data: str) -> None:
+    async def async_write_text(self, data: str) -> int | None:
         """异步写入文件"""
         pass
 

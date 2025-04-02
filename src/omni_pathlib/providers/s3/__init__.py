@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 from typing import AsyncIterator, Iterator
+
 from omni_pathlib.base_path import BasePath, FileInfo
 from omni_pathlib.providers.s3 import async_ops, sync_ops
 import aiohttp
@@ -142,7 +143,7 @@ class S3Path(BasePath):
                 return False
             raise
 
-    def iterdir(self) -> Iterator["BasePath"]:
+    def iterdir(self) -> Iterator["S3Path"]:
         """遍历目录"""
         for response in sync_ops.listdir_iter(
             bucket=self.bucket,
@@ -168,7 +169,7 @@ class S3Path(BasePath):
                         **self.kwargs,
                     )
 
-    async def async_iterdir(self) -> AsyncIterator["BasePath"]:
+    async def async_iterdir(self) -> AsyncIterator["S3Path"]:
         """异步遍历目录"""
         async for response in async_ops.listdir_iter(
             bucket=self.bucket,

@@ -149,9 +149,10 @@ def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
 
     assert path.exists()
     assert path.read_text() == "通过 profile 写入的内容"
+    assert path.path_info.scheme == "s3+test_profile"
     assert path.profile_name == "test_profile"
-    for item in path.iterdir():
-        assert item.scheme == "s3+test_profile"
+    for item in path.parent.iterdir():
+        assert item.path_info.scheme == "s3+test_profile"
         assert item.profile_name == "test_profile"
 
     # 测试 profile 优先级：参数优先于 URL scheme
@@ -187,7 +188,8 @@ async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
 
     assert await path.async_exists()
     assert await path.async_read_text() == "异步通过 profile 写入的内容"
+    assert path.path_info.scheme == "s3+async_test_profile"
     assert path.profile_name == "async_test_profile"
-    for item in path.iterdir():
-        assert item.scheme == "s3+async_test_profile"
+    for item in path.parent.iterdir():
+        assert item.path_info.scheme == "s3+async_test_profile"
         assert item.profile_name == "async_test_profile"
