@@ -1,11 +1,12 @@
 from datetime import datetime
 import os
-from typing import AsyncIterator, Iterator
+from typing import AsyncIterator, Iterator, cast
 
 from omni_pathlib.base_path import BasePath, FileInfo
 from omni_pathlib.providers.s3 import async_ops, sync_ops
 import aiohttp
 from curl_cffi.requests.exceptions import HTTPError
+from curl_cffi.requests import Response
 from omni_pathlib.providers.s3.credentials import CREDENTIALS
 from loguru import logger
 
@@ -122,7 +123,7 @@ class S3Path(BasePath):
             )
             return True
         except HTTPError as e:
-            if e.code == 404:
+            if e.response is not None and cast(Response, e.response).status_code == 404:
                 return False
             raise
 

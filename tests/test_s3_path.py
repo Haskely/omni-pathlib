@@ -1,6 +1,10 @@
 import pytest
 from moto.server import ThreadedMotoServer
 from omni_pathlib.providers.s3 import S3Path
+from unittest.mock import patch, MagicMock
+from curl_cffi.requests.exceptions import HTTPError
+from curl_cffi.requests import Response
+import aiohttp
 
 
 @pytest.fixture(scope="module")
@@ -193,3 +197,76 @@ async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
     for item in path.parent.iterdir():
         assert item.path_info.scheme == "s3+async_test_profile"
         assert item.profile_name == "async_test_profile"
+
+
+def test_s3_path_exists_404_handling(test_bucket, s3_config):
+    """测试 S3Path.exists 方法处理 404 错误的情况"""
+    path = S3Path(f"s3://{test_bucket}/non_existent_file.txt", **s3_config)
+
+    # 确认不存在的文件返回 False
+    assert not path.exists()
+
+    # 模拟 HTTPError 异常，但 e.response 为 None 的情况
+    mock_error = HTTPError("Not found", code=0, response=None)
+    with patch(
+        "omni_pathlib.providers.s3.sync_ops.head_object", side_effect=mock_error
+    ):
+        with pytest.raises(HTTPError):  # 应该引发异常，因为无法安全地访问 status_code
+            path.exists()
+
+    # 模拟 HTTPError 异常，e.response 不为 None 但 status_code 不是 404
+    mock_response = MagicMock(spec=Response)
+    mock_response.status_code = 403
+    mock_error = HTTPError("Forbidden", code=0, response=mock_response)
+    with patch(
+        "omni_pathlib.providers.s3.sync_ops.head_object", side_effect=mock_error
+    ):
+        with pytest.raises(HTTPError):  # 应该引发异常，因为错误码不是 404
+            path.exists()
+
+    # 模拟 HTTPError 异常，e.response 不为 None 且 status_code 是 404
+    mock_response = MagicMock(spec=Response)
+    mock_response.status_code = 404
+    mock_error = HTTPError("Not found", code=0, response=mock_response)
+    with patch(
+        "omni_pathlib.providers.s3.sync_ops.head_object", side_effect=mock_error
+    ):
+        assert not path.exists()  # 应该返回 False
+
+
+@pytest.mark.asyncio
+async def test_s3_path_async_exists_404_handling(test_bucket, s3_config):
+    """测试 S3Path.async_exists 方法处理 404 错误的情况"""
+    path = S3Path(f"s3://{test_bucket}/non_existent_file.txt", **s3_config)
+
+    # 确认不存在的文件返回 False
+    assert not await path.async_exists()
+
+    # 模拟 ClientResponseError 异常，status 为 404
+    mock_error = aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=404,
+        message="Not found",
+        headers=MagicMock(),
+    )
+    with patch(
+        "omni_pathlib.providers.s3.async_ops.head_object", side_effect=mock_error
+    ):
+        assert not await path.async_exists()
+
+    # 模拟 ClientResponseError 异常，status 不是 404
+    mock_error = aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=403,
+        message="Forbidden",
+        headers=MagicMock(),
+    )
+    with patch(
+        "omni_pathlib.providers.s3.async_ops.head_object", side_effect=mock_error
+    ):
+        with pytest.raises(
+            aiohttp.ClientResponseError
+        ):  # 应该引发异常，因为错误码不是 404
+            await path.async_exists()

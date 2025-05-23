@@ -1,5 +1,5 @@
 import aiohttp
-from curl_cffi import CurlECode, requests
+from curl_cffi import requests
 from curl_cffi.requests.exceptions import HTTPError
 
 
@@ -30,6 +30,6 @@ def curl_cffi_raise_for_status_with_text(response: requests.Response):
             response_text = None
         raise HTTPError(
             msg=f"{e} - {response_text=}",
-            code=CurlECode(response.status_code),
+            code=e.code,
             response=response,
         ) from e
