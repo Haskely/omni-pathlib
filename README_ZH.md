@@ -161,5 +161,6 @@ cz commit
 ```bash
 cz bump
 
-git push --follow-tags
+git push
+git push --tags
 ```
