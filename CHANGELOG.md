@@ -1,3 +1,9 @@
+## v0.3.10 (2025-05-23)
+
+### Fix
+
+- **s3**: Improve error handling for 404 responses in S3Path.exists and add corresponding tests
+
 ## v0.3.9 (2025-04-02)
 
 ### Refactor
