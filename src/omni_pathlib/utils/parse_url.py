@@ -28,6 +28,7 @@ def parse_url(url: str) -> PathInfo:
         schema_parts = scheme.split("+")
 
     # 解析路径组件
+    path = path.replace("\\", "/")
     path = path.rstrip("/")  # 移除末尾的斜杠
     parts = path.split("/")
     name = parts[-1] if parts else ""
@@ -35,8 +36,9 @@ def parse_url(url: str) -> PathInfo:
     # 解析文件名组件
     stem = name
     suffix = ""
-    if name and "." in name:
-        stem, suffix = name.rsplit(".", 1)
+    _name = name.strip(".")
+    if _name and "." in _name:
+        stem, suffix = _name.rsplit(".", 1)
         suffix = "." + suffix
 
     # 构建父路径
@@ -97,6 +99,7 @@ if __name__ == "__main__":
         "ssh://bucket/path/to/file.txt",
         "scp://bucket/path/to/file.txt",
         "s3+test_profile://bucket/path/to/file.txt",
+        "C:\\Users\\Administrator\\Desktop\\test.txt",
     ]:
         table.add_row(path, str(parse_url(path)))
 
