@@ -1,3 +1,13 @@
+## v0.4.0 (2025-05-29)
+
+### Feat
+
+- add methods to manipulate file names and create directories in BasePath
+
+### Fix
+
+- **parse_url**: normalize backslashes in paths and improve filename parsing
+
 ## v0.3.10 (2025-05-23)
 
 ### Fix
