@@ -54,6 +54,45 @@ class BasePath(ABC):
         """返回路径父路径"""
         return self.__class__(self.path_info.parent, **self.kwargs)
 
+    def with_name(self: T, name: str) -> T:
+        """返回一个新路径，替换当前路径的文件名
+
+        Args:
+            name: 新的文件名
+
+        Returns:
+            返回一个新的路径对象
+        """
+        if not name:
+            raise ValueError("文件名不能为空")
+        return self.parent / name
+
+    def with_stem(self: T, stem: str) -> T:
+        """返回一个新路径，替换当前路径的文件名主干（不含后缀）
+
+        Args:
+            stem: 新的文件名主干
+
+        Returns:
+            返回一个新的路径对象
+        """
+        if not stem:
+            raise ValueError("文件名主干不能为空")
+        return self.with_name(stem + self.suffix)
+
+    def with_suffix(self: T, suffix: str) -> T:
+        """返回一个新路径，替换当前路径的后缀
+
+        Args:
+            suffix: 新的后缀（应以点号开头，如 '.txt'）
+
+        Returns:
+            返回一个新的路径对象
+        """
+        if suffix and not suffix.startswith("."):
+            suffix = "." + suffix
+        return self.with_name(self.stem + suffix)
+
     @property
     @abstractmethod
     def protocol(self) -> str:
@@ -62,7 +101,7 @@ class BasePath(ABC):
 
     @property
     def kwargs(self) -> dict[str, Any]:
-        """返回路径参数"""
+        """返回路径参数，用于 __truediv__ 方法中正确配置相关路径"""
         return {}
 
     def __str__(self) -> str:
@@ -169,4 +208,12 @@ class BasePath(ABC):
     @abstractmethod
     async def async_delete(self) -> None:
         """异步删除文件"""
+        pass
+
+    def mkdir(self, parents: bool = False, exist_ok: bool = False):
+        """创建目录"""
+        pass
+
+    def async_mkdir(self, parents: bool = False, exist_ok: bool = False):
+        """异步创建目录"""
         pass
