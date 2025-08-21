@@ -27,6 +27,7 @@ def get_credentials_from_env():
                     if "__" in key:
                         profile_name = key.split("__")[0]
                         credentials[profile_name][name] = value
+                        credentials[profile_name.lower()][name] = value
                     else:
                         credentials["default"][name] = value
     return credentials
