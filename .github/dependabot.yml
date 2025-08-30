@@ -1,0 +1,8 @@
+# Dependabot 配置 - 自动更新 GitHub Actions
+version: 2
+updates:
+  # GitHub Actions 自动更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"  # 每周检查一次更新
