@@ -1,3 +1,15 @@
+## v0.5.0 (2025-08-31)
+
+### Feat
+
+- 自动提取 changelog 内容到 GitHub Release
+
+### Fix
+
+- 将所有 GitHub Actions 固定到完整的 commit SHA
+- 修复 zizmor 安全问题 - 固定 GitHub Actions 到 commit SHA
+- 修复所有 basedpyright 类型检查错误 (168 个)
+
 ## v0.4.2 (2025-08-21)
 
 ### Fix
