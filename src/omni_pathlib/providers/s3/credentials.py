@@ -10,7 +10,7 @@ import configparser
 import os
 from rich import print
 
-env_name_map = {
+env_name_map: dict[str, tuple[str, ...]] = {
     "aws_access_key_id": ("AWS_ACCESS_KEY_ID",),
     "aws_secret_access_key": ("AWS_SECRET_ACCESS_KEY",),
     "region": ("AWS_REGION",),
@@ -18,12 +18,12 @@ env_name_map = {
 }
 
 
-def get_credentials_from_env():
+def get_credentials_from_env() -> dict[str, dict[str, str]]:
     credentials: dict[str, dict[str, str]] = defaultdict(dict)
     for key, value in os.environ.items():
         for name, suffixes in env_name_map.items():
             for suffix in suffixes:
-                if key.endswith(suffix):
+                if isinstance(key, str) and key.endswith(suffix):
                     if "__" in key:
                         profile_name = key.split("__")[0]
                         credentials[profile_name][name] = value
@@ -33,13 +33,13 @@ def get_credentials_from_env():
     return credentials
 
 
-def read_config(filename):
+def read_config(filename: str) -> dict[str, dict[str, str]]:
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(filename)
     return {section: dict(config.items(section)) for section in config.sections()}
 
 
-def get_credentials_from_file(config_path: str):
+def get_credentials_from_file(config_path: str) -> dict[str, dict[str, str]]:
     config = read_config(config_path)
 
     credentials = {}

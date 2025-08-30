@@ -5,20 +5,20 @@ from pathlib import Path
 
 
 @pytest.fixture
-def temp_dir(tmp_path):
+def temp_dir(tmp_path: Path) -> str:
     """创建临时目录"""
     return str(tmp_path)
 
 
 @pytest.fixture
-def test_file(temp_dir):
+def test_file(temp_dir: str) -> str:
     """创建测试文件"""
     file_path = Path(temp_dir) / "test.txt"
     file_path.write_text("测试内容", encoding="utf-8")
     return str(file_path)
 
 
-def test_local_path_basic(temp_dir, test_file):
+def test_local_path_basic(temp_dir: str, test_file: str) -> None:
     """测试 LocalPath 的基本功能"""
     # 测试文件操作
     path = LocalPath(test_file)
@@ -40,7 +40,7 @@ def test_local_path_basic(temp_dir, test_file):
 
 
 @pytest.mark.asyncio
-async def test_local_path_async(temp_dir, test_file):
+async def test_local_path_async(temp_dir: str, test_file: str) -> None:
     """测试 LocalPath 的异步功能"""
     # 测试异步文件操作
     path = LocalPath(test_file)
@@ -61,7 +61,7 @@ async def test_local_path_async(temp_dir, test_file):
     assert str(files[0]) == test_file
 
 
-def test_local_path_write_operations(temp_dir):
+def test_local_path_write_operations(temp_dir: str) -> None:
     """测试 LocalPath 的写操作"""
     # 测试写文本文件
     text_file = LocalPath(os.path.join(temp_dir, "write_test.txt"))
@@ -91,7 +91,7 @@ def test_local_path_write_operations(temp_dir):
 
 
 @pytest.mark.asyncio
-async def test_local_path_async_write_operations(temp_dir):
+async def test_local_path_async_write_operations(temp_dir: str) -> None:
     """测试 LocalPath 的异步写操作"""
     # 测试异步写文本文件
     text_file = LocalPath(os.path.join(temp_dir, "async_write_test.txt"))
@@ -120,7 +120,7 @@ async def test_local_path_async_write_operations(temp_dir):
     assert not await new_dir.async_exists()
 
 
-def test_local_path_join(temp_dir):
+def test_local_path_join(temp_dir: str) -> None:
     """测试 LocalPath 的路径拼接功能"""
     # 测试基本路径拼接
     base_path = LocalPath(temp_dir)

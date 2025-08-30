@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
-from typing import AsyncIterator, Iterator, cast
+from typing import cast
+from collections.abc import AsyncIterator, Iterator
 
 from omni_pathlib.base_path import BasePath, FileInfo
 from omni_pathlib.providers.s3 import async_ops, sync_ops
@@ -13,7 +14,7 @@ from loguru import logger
 
 class S3Path(BasePath):
     @property
-    def kwargs(self):
+    def kwargs(self) -> dict[str, str | None]:
         return {
             "profile_name": self.profile_name,
             "endpoint_url": self.endpoint_url,
@@ -159,7 +160,11 @@ class S3Path(BasePath):
                 if prefix.get("Prefix"):
                     yield S3Path(
                         f"{self.path_info.scheme}://{self.bucket}/{prefix['Prefix']}",
-                        **self.kwargs,
+                        profile_name=self.profile_name,
+                        endpoint_url=self.endpoint_url,
+                        region_name=self.region_name,
+                        aws_access_key_id=self.aws_access_key_id,
+                        aws_secret_access_key=self.aws_secret_access_key,
                     )
 
             # 处理文件
@@ -167,7 +172,11 @@ class S3Path(BasePath):
                 if item.get("Key"):
                     yield S3Path(
                         f"{self.path_info.scheme}://{self.bucket}/{item['Key']}",
-                        **self.kwargs,
+                        profile_name=self.profile_name,
+                        endpoint_url=self.endpoint_url,
+                        region_name=self.region_name,
+                        aws_access_key_id=self.aws_access_key_id,
+                        aws_secret_access_key=self.aws_secret_access_key,
                     )
 
     async def async_iterdir(self) -> AsyncIterator["S3Path"]:
@@ -185,7 +194,11 @@ class S3Path(BasePath):
                 if prefix.get("Prefix"):
                     yield S3Path(
                         f"{self.path_info.scheme}://{self.bucket}/{prefix['Prefix']}",
-                        **self.kwargs,
+                        profile_name=self.profile_name,
+                        endpoint_url=self.endpoint_url,
+                        region_name=self.region_name,
+                        aws_access_key_id=self.aws_access_key_id,
+                        aws_secret_access_key=self.aws_secret_access_key,
                     )
 
             # 处理文件
@@ -193,7 +206,11 @@ class S3Path(BasePath):
                 if item.get("Key"):
                     yield S3Path(
                         f"{self.path_info.scheme}://{self.bucket}/{item['Key']}",
-                        **self.kwargs,
+                        profile_name=self.profile_name,
+                        endpoint_url=self.endpoint_url,
+                        region_name=self.region_name,
+                        aws_access_key_id=self.aws_access_key_id,
+                        aws_secret_access_key=self.aws_secret_access_key,
                     )
 
     def stat(self) -> FileInfo:
@@ -206,14 +223,14 @@ class S3Path(BasePath):
             access_key=self.aws_access_key_id,
             secret_key=self.aws_secret_access_key,
         )
+        content_length = metadata.get("ContentLength", 0)
+        last_modified = metadata.get("LastModified")
         return FileInfo(
-            size=metadata["ContentLength"],
-            modified=datetime.strptime(
-                metadata["LastModified"], "%a, %d %b %Y %H:%M:%S %Z"
-            )
-            if metadata["LastModified"]
+            size=content_length if isinstance(content_length, int) else 0,
+            modified=datetime.strptime(last_modified, "%a, %d %b %Y %H:%M:%S %Z")
+            if isinstance(last_modified, str) and last_modified
             else None,
-            metadata=metadata,
+            metadata=cast(dict[str, object], metadata),
         )
 
     async def async_stat(self) -> FileInfo:
@@ -226,14 +243,14 @@ class S3Path(BasePath):
             access_key=self.aws_access_key_id,
             secret_key=self.aws_secret_access_key,
         )
+        content_length = metadata.get("ContentLength", 0)
+        last_modified = metadata.get("LastModified")
         return FileInfo(
-            size=metadata["ContentLength"],
-            modified=datetime.strptime(
-                metadata["LastModified"], "%a, %d %b %Y %H:%M:%S %Z"
-            )
-            if metadata["LastModified"]
+            size=content_length if isinstance(content_length, int) else 0,
+            modified=datetime.strptime(last_modified, "%a, %d %b %Y %H:%M:%S %Z")
+            if isinstance(last_modified, str) and last_modified
             else None,
-            metadata=metadata,
+            metadata=cast(dict[str, object], metadata),
         )
 
     def read_bytes(self) -> bytes:

@@ -1,5 +1,5 @@
 from curl_cffi import requests
-from typing import Iterator
+from typing import Iterator, cast
 import xmltodict
 from omni_pathlib.providers.s3.sign_request import sign_request
 from omni_pathlib.providers.s3.type_hints import (
@@ -55,9 +55,9 @@ def upload_file(
     )
 
     response = requests.put(
-        urljoin(endpoint, signed_headers["signed_url"]),
+        urljoin(endpoint, str(signed_headers["signed_url"])),
         data=data,
-        headers=signed_headers["headers"],
+        headers=cast(dict[str, str], signed_headers["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
     return True
@@ -101,8 +101,8 @@ def download_file(
     )
 
     response = requests.get(
-        urljoin(endpoint, signed_headers["signed_url"]),
-        headers=signed_headers["headers"],
+        urljoin(endpoint, str(signed_headers["signed_url"])),
+        headers=cast(dict[str, str], signed_headers["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
     return response.content
@@ -162,7 +162,8 @@ def list_objects(
     )
 
     response = requests.get(
-        urljoin(endpoint, signed_result["signed_url"]), headers=signed_result["headers"]
+        urljoin(endpoint, str(signed_result["signed_url"])),
+        headers=cast(dict[str, str], signed_result["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
     _result = xmltodict.parse(response.text)
@@ -313,8 +314,8 @@ def head_object(
     )
 
     response = requests.head(
-        urljoin(endpoint, signed_headers["signed_url"]),
-        headers=signed_headers["headers"],
+        urljoin(endpoint, str(signed_headers["signed_url"])),
+        headers=cast(dict[str, str], signed_headers["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
 
@@ -364,8 +365,8 @@ def delete_object(
     )
 
     response = requests.delete(
-        urljoin(endpoint, signed_headers["signed_url"]),
-        headers=signed_headers["headers"],
+        urljoin(endpoint, str(signed_headers["signed_url"])),
+        headers=cast(dict[str, str], signed_headers["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
     return response.status_code == 204
@@ -415,9 +416,9 @@ def delete_objects(
     )
 
     response = requests.post(
-        urljoin(endpoint, signed_result["signed_url"]),
+        urljoin(endpoint, str(signed_result["signed_url"])),
         data=payload,
-        headers=signed_result["headers"],
+        headers=cast(dict[str, str], signed_result["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
 
@@ -477,9 +478,9 @@ def create_bucket(
     )
 
     response = requests.put(
-        urljoin(endpoint, signed_headers["signed_url"]),
+        urljoin(endpoint, str(signed_headers["signed_url"])),
         data=location_constraint,
-        headers=signed_headers["headers"],
+        headers=cast(dict[str, str], signed_headers["headers"]),
     )
     curl_cffi_raise_for_status_with_text(response)
     if "Error" in response.text:
