@@ -40,3 +40,39 @@
 
 1. 打开 https://test.pypi.org/project/omni-pathlib/
 2. 打开 https://pypi.org/project/omni-pathlib/
+
+## Dependabot 自动合并
+
+### 1. 功能说明
+
+通过 `.github/dependabot.yml` 和 `.github/workflows/auto-merge-dependabot.yml` 配置，实现：
+- 自动更新 GitHub Actions 依赖
+- 自动批准和合并 Dependabot 创建的 PR（patch 和 minor 版本）
+- Major 版本更新需要手动审查
+
+### 2. 权限配置
+
+**重要**：需要在仓库设置中启用 GitHub Actions 的写权限，否则自动合并功能无法正常工作。
+
+配置步骤：
+1. 进入仓库的 **Settings** 页面
+2. 在左侧菜单中选择 **Actions** → **General**
+3. 滚动到 **Workflow permissions** 部分
+4. 选择 **Read and write permissions**
+5. 勾选 **Allow GitHub Actions to create and approve pull requests**（可选，但推荐）
+6. 点击 **Save** 保存设置
+
+### 3. 自动合并策略
+
+| 更新类型 | 版本示例 | 自动合并 | 说明 |
+|---------|---------|---------|------|
+| Patch | 1.0.1 → 1.0.2 | ✅ | 自动批准并合并 |
+| Minor | 1.0.0 → 1.1.0 | ✅ | 自动批准并合并 |
+| Major | 1.0.0 → 2.0.0 | ❌ | 需要手动审查和合并 |
+
+### 4. 监控和管理
+
+- **查看状态**：在 Actions 标签页查看 "Dependabot 自动合并" workflow 的运行状态
+- **PR 标签**：自动合并的 PR 会显示 "Auto-merge enabled" 标签
+- **手动干预**：可以随时在 PR 页面取消自动合并或手动合并
+- **查看日志**：点击具体的 workflow 运行记录查看详细日志

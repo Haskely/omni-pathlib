@@ -6,3 +6,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"  # 每周检查一次更新
+    # PR 标签
+    labels:
+      - "dependencies"
+      - "github-actions"
+    # 设置 PR 标题前缀
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    # 限制同时打开的 PR 数量
+    open-pull-requests-limit: 5
