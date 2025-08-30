@@ -5,10 +5,11 @@ from unittest.mock import patch, MagicMock
 from curl_cffi.requests.exceptions import HTTPError
 from curl_cffi.requests import Response
 import aiohttp
+from typing import Dict, Generator
 
 
 @pytest.fixture(scope="module")
-def moto_server():
+def moto_server() -> Generator[str, None, None]:
     """创建 Moto 服务器实例"""
     server = ThreadedMotoServer(port=0)
     server.start()
@@ -20,7 +21,7 @@ def moto_server():
 
 
 @pytest.fixture(scope="function")
-def test_bucket(moto_server):
+def test_bucket(moto_server: str) -> str:
     """创建测试用的 bucket"""
     bucket_name = "test-bucket"
     # 使用 S3Path 创建 bucket
@@ -33,7 +34,7 @@ def test_bucket(moto_server):
 
 
 @pytest.fixture(scope="function")
-def s3_config(moto_server):
+def s3_config(moto_server: str) -> Dict[str, str]:
     """提供 S3 配置的 fixture"""
     return {
         "endpoint_url": moto_server,
@@ -43,38 +44,62 @@ def s3_config(moto_server):
     }
 
 
-def test_s3_path_basic(test_bucket, s3_config):
+def test_s3_path_basic(test_bucket: str, s3_config: Dict[str, str]) -> None:
     """测试 S3Path 的基本功能"""
-    path = S3Path(f"s3://{test_bucket}/test-测试.txt", **s3_config)
+    path = S3Path(
+        f"s3://{test_bucket}/test-测试.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     path.write_text("测试内容")
 
     assert path.exists()
     assert path.read_text() == "测试内容"
 
     # 测试写入操作
-    new_path = S3Path(f"s3://{test_bucket}/new-新文件.txt", **s3_config)
+    new_path = S3Path(
+        f"s3://{test_bucket}/new-新文件.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     new_path.write_text("新内容")
     assert new_path.exists()
     assert new_path.read_text() == "新内容"
 
 
 @pytest.mark.asyncio
-async def test_s3_path_async(test_bucket, s3_config):
+async def test_s3_path_async(test_bucket: str, s3_config: Dict[str, str]) -> None:
     """测试 S3Path 的异步功能"""
-    path = S3Path(f"s3://{test_bucket}/async_test-异步测试.txt", **s3_config)
+    path = S3Path(
+        f"s3://{test_bucket}/async_test-异步测试.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     await path.async_write_text("异步测试内容")
 
     assert await path.async_exists()
     assert await path.async_read_text() == "异步测试内容"
 
     # 测试异步写入
-    new_path = S3Path(f"s3://{test_bucket}/async_new-异步新文件.txt", **s3_config)
+    new_path = S3Path(
+        f"s3://{test_bucket}/async_new-异步新文件.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     await new_path.async_write_text("异步新内容")
     assert await new_path.async_exists()
     assert await new_path.async_read_text() == "异步新内容"
 
 
-def test_s3_path_iterdir(test_bucket, s3_config):
+def test_s3_path_iterdir(test_bucket: str, s3_config: Dict[str, str]) -> None:
     """测试目录遍历功能"""
     # 创建测试文件结构
     files = [
@@ -86,11 +111,23 @@ def test_s3_path_iterdir(test_bucket, s3_config):
     ]
 
     for file_path in files:
-        path = S3Path(f"s3://{test_bucket}/{file_path}", **s3_config)
+        path = S3Path(
+            f"s3://{test_bucket}/{file_path}",
+            endpoint_url=s3_config["endpoint_url"],
+            region_name=s3_config["region_name"],
+            aws_access_key_id=s3_config["aws_access_key_id"],
+            aws_secret_access_key=s3_config["aws_secret_access_key"],
+        )
         path.write_text("content")
 
     # 测试根目录遍历
-    root = S3Path(f"s3://{test_bucket}", **s3_config)
+    root = S3Path(
+        f"s3://{test_bucket}",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     items = {str(item) for item in root.iterdir()}
     print("DEBUG: items", items)
     target_items = {
@@ -102,7 +139,13 @@ def test_s3_path_iterdir(test_bucket, s3_config):
     assert target_items.issubset(items), f"extra items: {target_items - items}"
 
     # 测试子目录遍历
-    dir1 = S3Path(f"s3://{test_bucket}/dir1", **s3_config)
+    dir1 = S3Path(
+        f"s3://{test_bucket}/dir1",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     items = {str(item) for item in dir1.iterdir()}
     print("DEBUG: items", items)
     # FIXME: 这里返回的 items 是空的
@@ -114,7 +157,9 @@ def test_s3_path_iterdir(test_bucket, s3_config):
 
 
 @pytest.mark.asyncio
-async def test_s3_path_async_iterdir(test_bucket, s3_config):
+async def test_s3_path_async_iterdir(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
     """测试异步目录遍历功能"""
     # 创建测试文件结构
     files = [
@@ -123,18 +168,32 @@ async def test_s3_path_async_iterdir(test_bucket, s3_config):
         "async_dir2/file3-文件3.txt",
     ]
     for file_path in files:
-        path = S3Path(f"s3://{test_bucket}/{file_path}", **s3_config)
+        path = S3Path(
+            f"s3://{test_bucket}/{file_path}",
+            endpoint_url=s3_config["endpoint_url"],
+            region_name=s3_config["region_name"],
+            aws_access_key_id=s3_config["aws_access_key_id"],
+            aws_secret_access_key=s3_config["aws_secret_access_key"],
+        )
         path.write_text("content")
 
     # 测试异步遍历
-    root = S3Path(f"s3://{test_bucket}/", **s3_config)
+    root = S3Path(
+        f"s3://{test_bucket}/",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
     items = {str(item) async for item in root.async_iterdir()}
     print("DEBUG: items", items)
     target_items = {"s3://test-bucket/async_dir1/", "s3://test-bucket/async_dir2/"}
     assert target_items.issubset(items), f"extra items: {target_items - items}"
 
 
-def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
+def test_s3_path_with_profile_in_scheme(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
     """测试通过 URL scheme 指定 profile 的功能"""
     # 设置测试用的凭证配置
     from omni_pathlib.providers.s3.credentials import CREDENTIALS
@@ -174,7 +233,9 @@ def test_s3_path_with_profile_in_scheme(test_bucket, s3_config):
 
 
 @pytest.mark.asyncio
-async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
+async def test_s3_path_with_profile_in_scheme_async(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
     """测试异步操作时通过 URL scheme 指定 profile 的功能"""
     # 设置测试用的凭证配置
     from omni_pathlib.providers.s3.credentials import CREDENTIALS
@@ -199,9 +260,17 @@ async def test_s3_path_with_profile_in_scheme_async(test_bucket, s3_config):
         assert item.profile_name == "async_test_profile"
 
 
-def test_s3_path_exists_404_handling(test_bucket, s3_config):
+def test_s3_path_exists_404_handling(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
     """测试 S3Path.exists 方法处理 404 错误的情况"""
-    path = S3Path(f"s3://{test_bucket}/non_existent_file.txt", **s3_config)
+    path = S3Path(
+        f"s3://{test_bucket}/non_existent_file.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
 
     # 确认不存在的文件返回 False
     assert not path.exists()
@@ -235,9 +304,17 @@ def test_s3_path_exists_404_handling(test_bucket, s3_config):
 
 
 @pytest.mark.asyncio
-async def test_s3_path_async_exists_404_handling(test_bucket, s3_config):
+async def test_s3_path_async_exists_404_handling(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
     """测试 S3Path.async_exists 方法处理 404 错误的情况"""
-    path = S3Path(f"s3://{test_bucket}/non_existent_file.txt", **s3_config)
+    path = S3Path(
+        f"s3://{test_bucket}/non_existent_file.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
 
     # 确认不存在的文件返回 False
     assert not await path.async_exists()

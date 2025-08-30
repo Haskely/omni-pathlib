@@ -11,10 +11,10 @@ def sign_request(
     access_key: str,
     secret_key: str,
     uri: str = "/",
-    query_params: dict | None = None,
-    headers: dict | None = None,
+    query_params: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
     payload: bytes | None = None,
-) -> dict:
+) -> dict[str, object]:
     """
     为 S3 请求生成 AWS Signature V4 签名
     支持 signed 和 unsigned payload
@@ -47,7 +47,7 @@ def sign_request(
         # 严格按照字典序排序
         canonical_querystring = "&".join(
             [
-                f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(str(v), safe='')}"
+                f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(v, safe='')}"
                 for k, v in sorted(query_params.items())
             ]
         )

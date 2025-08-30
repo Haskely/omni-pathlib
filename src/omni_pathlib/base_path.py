@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, AsyncIterator, Iterator, TypeVar
+from typing import AsyncIterator, Iterator, TypeVar, Dict
 from datetime import datetime
 from dataclasses import dataclass
 from omni_pathlib.utils.join_paths import join_paths
@@ -14,7 +14,7 @@ class FileInfo:
 
     size: int
     modified: datetime | None
-    metadata: Any
+    metadata: Dict[str, object]
 
 
 # 在类定义前添加 TypeVar
@@ -100,7 +100,7 @@ class BasePath(ABC):
         pass
 
     @property
-    def kwargs(self) -> dict[str, Any]:
+    def kwargs(self) -> Dict[str, str | None]:
         """返回路径参数，用于 __truediv__ 方法中正确配置相关路径"""
         return {}
 
@@ -108,7 +108,7 @@ class BasePath(ABC):
         """返回路径字符串"""
         return self.path
 
-    def __truediv__(self: T, other) -> T:
+    def __truediv__(self: T, other: object) -> T:
         """实现路径除法运算符 /"""
         other_str = str(other)
 
@@ -210,10 +210,10 @@ class BasePath(ABC):
         """异步删除文件"""
         pass
 
-    def mkdir(self, parents: bool = False, exist_ok: bool = False):
+    def mkdir(self, parents: bool = False, exist_ok: bool = False) -> None:
         """创建目录"""
         pass
 
-    def async_mkdir(self, parents: bool = False, exist_ok: bool = False):
+    async def async_mkdir(self, parents: bool = False, exist_ok: bool = False) -> None:
         """异步创建目录"""
         pass

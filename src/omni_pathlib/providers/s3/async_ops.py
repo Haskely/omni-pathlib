@@ -1,6 +1,6 @@
 import asyncio
 import aiohttp
-from typing import AsyncIterator
+from typing import AsyncIterator, cast
 import time
 import xmltodict
 
@@ -81,9 +81,9 @@ async def upload_file(
 
     async with aiohttp.ClientSession() as session:
         async with session.put(
-            urljoin(endpoint, signed_headers["signed_url"]),
+            urljoin(endpoint, str(signed_headers["signed_url"])),
             data=data,
-            headers=signed_headers["headers"],
+            headers=cast(dict[str, str], signed_headers["headers"]),
         ) as response:
             return response.status == 200
 
@@ -126,8 +126,8 @@ async def download_file(
 
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            urljoin(endpoint, signed_headers["signed_url"]),
-            headers=signed_headers["headers"],
+            urljoin(endpoint, str(signed_headers["signed_url"])),
+            headers=cast(dict[str, str], signed_headers["headers"]),
         ) as response:
             if response.status == 200:
                 return await response.read()
@@ -190,8 +190,8 @@ async def list_objects(
     # 使用签名函数返回的 URL 和 headers
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            urljoin(endpoint, signed_result["signed_url"]),
-            headers=signed_result["headers"],
+            urljoin(endpoint, str(signed_result["signed_url"])),
+            headers=cast(dict[str, str], signed_result["headers"]),
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
@@ -348,8 +348,8 @@ async def head_object(
 
     async with aiohttp.ClientSession() as session:
         async with session.head(
-            urljoin(endpoint, signed_headers["signed_url"]),
-            headers=signed_headers["headers"],
+            urljoin(endpoint, str(signed_headers["signed_url"])),
+            headers=cast(dict[str, str], signed_headers["headers"]),
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             return {
@@ -399,8 +399,8 @@ async def delete_object(
 
     async with aiohttp.ClientSession() as session:
         async with session.delete(
-            urljoin(endpoint, signed_headers["signed_url"]),
-            headers=signed_headers["headers"],
+            urljoin(endpoint, str(signed_headers["signed_url"])),
+            headers=cast(dict[str, str], signed_headers["headers"]),
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             return response.status == 204  # S3 删除成功返回 204 No Content
@@ -450,9 +450,9 @@ async def delete_objects(
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            urljoin(endpoint, signed_result["signed_url"]),
+            urljoin(endpoint, str(signed_result["signed_url"])),
             data=payload,
-            headers=signed_result["headers"],
+            headers=cast(dict[str, str], signed_result["headers"]),
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             xml_content = await response.text()
@@ -516,9 +516,9 @@ async def create_bucket(
 
     async with aiohttp.ClientSession() as session:
         async with session.put(
-            urljoin(endpoint, signed_headers["signed_url"]),
+            urljoin(endpoint, str(signed_headers["signed_url"])),
             data=location_constraint,
-            headers=signed_headers["headers"],
+            headers=cast(dict[str, str], signed_headers["headers"]),
         ) as response:
             await aiohttp_raise_for_status_with_text(response)
             if "Error" in (resp_text := await response.text()):

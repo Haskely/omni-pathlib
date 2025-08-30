@@ -1,10 +1,11 @@
 from omni_pathlib.base_path import BasePath, FileInfo
 from curl_cffi import requests
+from curl_cffi.requests import Response
 from datetime import datetime
 from omni_pathlib.providers.local import LocalPath
 import os
 import hashlib
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast, Dict
 
 from omni_pathlib.utils.raise_for_status_with_text import (
     curl_cffi_raise_for_status_with_text,
@@ -36,7 +37,7 @@ class HttpPath(BasePath):
         temp_path = self._cache_dir / f"{path_hash}.bytes.part"
         return cache_path, temp_path
 
-    def _supports_range(self, response: requests.Response) -> bool:
+    def _supports_range(self, response: Response) -> bool:
         """检查服务器是否支持断点续传"""
         return "accept-ranges" in response.headers
 
@@ -71,22 +72,30 @@ class HttpPath(BasePath):
             )
             if "last-modified" in response.headers
             else datetime.now(),
-            metadata=dict(response.headers),
+            metadata=cast(Dict[str, object], dict(response.headers)),
         )
 
     async def async_stat(self) -> FileInfo:
         response = await self.async_session.head(self.path)
-        curl_cffi_raise_for_status_with_text(response)
+        curl_cffi_raise_for_status_with_text(cast(Response, response))
+
+        content_length = cast(str, response.headers.get("content-length", "0"))
+        last_modified = cast(str, response.headers.get("last-modified", ""))
+
+        # Create metadata dict from headers
+        metadata: Dict[str, object] = {}
+        for key, value in response.headers.items():
+            metadata[key] = value
 
         return FileInfo(
-            size=int(response.headers.get("content-length", 0)),
+            size=int(content_length) if content_length else 0,
             modified=datetime.strptime(
-                response.headers.get("last-modified", ""),
+                last_modified,
                 "%a, %d %b %Y %H:%M:%S GMT",
             )
             if "last-modified" in response.headers
             else datetime.now(),
-            metadata=dict(response.headers),
+            metadata=metadata,
         )
 
     def download(self) -> bytes:
@@ -113,7 +122,8 @@ class HttpPath(BasePath):
                     for chunk in response.iter_content(
                         chunk_size=None
                     ):  # UserWarning: chunk_size is ignored, there is no way to tell curl that.
-                        f.write(chunk)
+                        if isinstance(chunk, bytes):
+                            f.write(chunk)
 
             # 下载完成，重命名为正式缓存文件
             temp_path.rename(cache_path.path)
@@ -139,7 +149,7 @@ class HttpPath(BasePath):
         head_resp = await self.async_session.head(self.path)
         head_resp.raise_for_status()
 
-        if self._supports_range(head_resp):
+        if self._supports_range(cast(Response, head_resp)):
             # 支持断点续传的情况
             headers = {"Range": f"bytes={initial_pos}-"} if initial_pos > 0 else {}
             response = await self.async_session.get(
@@ -149,7 +159,8 @@ class HttpPath(BasePath):
 
             with open(temp_path.path, "ab" if initial_pos > 0 else "wb") as f:
                 async for chunk in response.aiter_content():
-                    f.write(chunk)
+                    if isinstance(chunk, bytes):
+                        f.write(chunk)
 
             # 下载完成，重命名为正式缓存文件
             temp_path.rename(cache_path.path)
@@ -158,8 +169,9 @@ class HttpPath(BasePath):
             # 不支持断点续传，直接下载
             response = await self.async_session.get(self.path)
             response.raise_for_status()
-            cache_path.write_bytes(response.content)
-            return response.content
+            content = cast(bytes, response.content)
+            cache_path.write_bytes(content)
+            return content
 
     def read_bytes(self) -> bytes:
         return self.download()

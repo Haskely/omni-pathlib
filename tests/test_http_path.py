@@ -3,20 +3,22 @@ from pytest_httpserver import HTTPServer
 from omni_pathlib.providers.http import HttpPath
 import os
 from datetime import datetime
+from typing import Tuple
+from pathlib import Path
 
 
 @pytest.fixture(scope="session")
-def httpserver_listen_address():
+def httpserver_listen_address() -> Tuple[str, int]:
     return ("localhost", 0)
 
 
 @pytest.fixture
-def test_content():
+def test_content() -> bytes:
     return b"Hello, World!"
 
 
 @pytest.fixture
-def mock_server(httpserver: HTTPServer, test_content):
+def mock_server(httpserver: HTTPServer, test_content: bytes) -> HTTPServer:
     """配置测试服务器"""
     # 模拟基本的 GET 请求
     httpserver.expect_request("/test.txt").respond_with_data(
@@ -44,7 +46,7 @@ def mock_server(httpserver: HTTPServer, test_content):
     return httpserver
 
 
-def test_http_path_basic(mock_server, test_content):
+def test_http_path_basic(mock_server: HTTPServer, test_content: bytes) -> None:
     """测试 HttpPath 的基本功能"""
     url = f"http://{mock_server.host}:{mock_server.port}/test.txt"
     path = HttpPath(url)
@@ -63,7 +65,7 @@ def test_http_path_basic(mock_server, test_content):
 
 
 @pytest.mark.asyncio
-async def test_http_path_async(mock_server, test_content):
+async def test_http_path_async(mock_server: HTTPServer, test_content: bytes) -> None:
     """测试 HttpPath 的异步功能"""
     url = f"http://{mock_server.host}:{mock_server.port}/test.txt"
     path = HttpPath(url)
@@ -81,7 +83,9 @@ async def test_http_path_async(mock_server, test_content):
     assert isinstance(info.modified, datetime)
 
 
-def test_http_path_cache(mock_server, test_content, tmp_path):
+def test_http_path_cache(
+    mock_server: HTTPServer, test_content: bytes, tmp_path: Path
+) -> None:
     """测试 HTTP 缓存功能"""
     url = f"http://{mock_server.host}:{mock_server.port}/test.txt"
     cache_dir = str(tmp_path / "http_cache")
@@ -105,7 +109,7 @@ def test_http_path_cache(mock_server, test_content, tmp_path):
     assert mock_server.log[1][0].method == "GET"
 
 
-def test_http_path_range_download(mock_server, tmp_path):
+def test_http_path_range_download(mock_server: HTTPServer, tmp_path: Path) -> None:
     """测试断点续传功能"""
     url = f"http://{mock_server.host}:{mock_server.port}/large.txt"
     cache_dir = str(tmp_path / "http_cache")
@@ -118,7 +122,9 @@ def test_http_path_range_download(mock_server, tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_http_path_range_download_async(mock_server, tmp_path):
+async def test_http_path_range_download_async(
+    mock_server: HTTPServer, tmp_path: Path
+) -> None:
     """测试断点续传功能"""
     url = f"http://{mock_server.host}:{mock_server.port}/large.txt"
     cache_dir = str(tmp_path / "http_cache")
@@ -130,7 +136,7 @@ async def test_http_path_range_download_async(mock_server, tmp_path):
     assert len(content2) == 6 * 8192  # "Large " 是 6 字节，重复 8192 次
 
 
-def test_http_path_unsupported_operations(mock_server):
+def test_http_path_unsupported_operations(mock_server: HTTPServer) -> None:
     """测试不支持的操作"""
     url = f"http://{mock_server.host}:{mock_server.port}/test.txt"
     path = HttpPath(url)

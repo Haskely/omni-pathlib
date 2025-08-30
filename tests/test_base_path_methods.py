@@ -5,20 +5,20 @@ from pathlib import Path
 
 
 @pytest.fixture
-def temp_dir(tmp_path):
+def temp_dir(tmp_path: Path) -> str:
     """创建临时目录"""
     return str(tmp_path)
 
 
 @pytest.fixture
-def test_file(temp_dir):
+def test_file(temp_dir: str) -> str:
     """创建测试文件"""
     file_path = Path(temp_dir) / "test.txt"
     file_path.write_text("测试内容", encoding="utf-8")
     return str(file_path)
 
 
-def test_with_name(temp_dir, test_file):
+def test_with_name(temp_dir: str, test_file: str) -> None:
     """测试 with_name 方法"""
     path = LocalPath(test_file)
 
@@ -40,7 +40,7 @@ def test_with_name(temp_dir, test_file):
         path.with_name("")
 
 
-def test_with_stem(temp_dir, test_file):
+def test_with_stem(temp_dir: str, test_file: str) -> None:
     """测试 with_stem 方法"""
     path = LocalPath(test_file)
 
@@ -65,7 +65,7 @@ def test_with_stem(temp_dir, test_file):
         path.with_stem("")
 
 
-def test_with_suffix(temp_dir, test_file):
+def test_with_suffix(temp_dir: str, test_file: str) -> None:
     """测试 with_suffix 方法"""
     path = LocalPath(test_file)
 
@@ -99,7 +99,7 @@ def test_with_suffix(temp_dir, test_file):
     assert new_path_obj.name == f"{no_suffix_stem}.txt"
 
 
-def test_method_chaining(temp_dir, test_file):
+def test_method_chaining(temp_dir: str, test_file: str) -> None:
     """测试方法链式调用"""
     path = LocalPath(test_file)
 
@@ -110,7 +110,7 @@ def test_method_chaining(temp_dir, test_file):
     assert new_path.suffix == ".docx"
 
 
-def test_path_identity(temp_dir, test_file):
+def test_path_identity(temp_dir: str, test_file: str) -> None:
     """测试路径身份保持（确保返回的是相同类型的路径对象）"""
     path = LocalPath(test_file)
 
@@ -126,7 +126,7 @@ def test_path_identity(temp_dir, test_file):
 
 
 @pytest.mark.asyncio
-async def test_async_path_operations(temp_dir, test_file):
+async def test_async_path_operations(temp_dir: str, test_file: str) -> None:
     """测试异步方法可以与新方法一起正确工作"""
     path = LocalPath(test_file)
 

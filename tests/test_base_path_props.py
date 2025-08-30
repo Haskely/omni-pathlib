@@ -5,20 +5,20 @@ import os
 
 
 @pytest.fixture
-def temp_dir(tmp_path):
+def temp_dir(tmp_path: Path) -> str:
     """创建临时目录"""
     return str(tmp_path)
 
 
 @pytest.fixture
-def test_file(temp_dir):
+def test_file(temp_dir: str) -> str:
     """创建测试文件"""
     file_path = Path(temp_dir) / "test.txt"
     file_path.write_text("测试内容", encoding="utf-8")
     return str(file_path)
 
 
-def test_path_properties_consistency(temp_dir, test_file):
+def test_path_properties_consistency(temp_dir: str, test_file: str) -> None:
     """测试路径属性的一致性"""
     path = LocalPath(test_file)
     py_path = Path(test_file)
@@ -31,7 +31,7 @@ def test_path_properties_consistency(temp_dir, test_file):
     )
 
 
-def test_path_methods_properties_consistency(temp_dir, test_file):
+def test_path_methods_properties_consistency(temp_dir: str, test_file: str) -> None:
     """测试路径方法后属性的一致性"""
     path = LocalPath(test_file)
 
@@ -75,7 +75,7 @@ def test_path_methods_properties_consistency(temp_dir, test_file):
     )
 
 
-def test_special_paths(temp_dir):
+def test_special_paths(temp_dir: str) -> None:
     """测试特殊路径的属性"""
     # 无后缀文件
     no_suffix_path = LocalPath(os.path.join(temp_dir, "file_without_extension"))
@@ -102,7 +102,7 @@ def test_special_paths(temp_dir):
     assert dir_path.suffix == ""
 
 
-def test_protocol_paths():
+def test_protocol_paths() -> None:
     """测试含协议的路径属性"""
     # HTTP URL 路径
     http_path = LocalPath("http://example.com/path/to/file.txt")
