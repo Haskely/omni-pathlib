@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
-from typing import AsyncIterator, Iterator, cast
+from typing import cast
+from collections.abc import AsyncIterator, Iterator
 
 from omni_pathlib.base_path import BasePath, FileInfo
 from omni_pathlib.providers.s3 import async_ops, sync_ops

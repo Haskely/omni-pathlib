@@ -1,6 +1,6 @@
 from omni_pathlib.base_path import BasePath, FileInfo
 from pathlib import Path
-from aiopath import AsyncPath
+from anyio import Path as AsyncPath
 from datetime import datetime
 from typing import Iterator
 
