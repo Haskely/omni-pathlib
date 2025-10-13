@@ -112,7 +112,8 @@ class S3Path(BasePath):
         return "s3"
 
     def exists(self) -> bool:
-        """检查路径是否存在"""
+        """检查路径是否存在（文件或文件夹）"""
+        # 1. 先尝试作为文件检查（使用 HEAD 请求）
         try:
             sync_ops.head_object(
                 bucket=self.bucket,
@@ -125,11 +126,24 @@ class S3Path(BasePath):
             return True
         except HTTPError as e:
             if e.response is not None and cast(Response, e.response).status_code == 404:
-                return False
+                # 2. 如果文件不存在，尝试作为文件夹检查（使用 LIST 请求）
+                prefix = self.key if self.key.endswith("/") else f"{self.key}/"
+                response = sync_ops.list_objects(
+                    bucket=self.bucket,
+                    prefix=prefix,
+                    endpoint=self.endpoint_url,
+                    region=self.region_name,
+                    access_key=self.aws_access_key_id,
+                    secret_key=self.aws_secret_access_key,
+                    max_keys=1,  # 只需要检查是否有对象，1个就够了
+                )
+                # 如果有任何对象或子文件夹，则认为该文件夹存在
+                return response.get("KeyCount", 0) > 0
             raise
 
     async def async_exists(self) -> bool:
-        """异步检查路径是否存在"""
+        """异步检查路径是否存在（文件或文件夹）"""
+        # 1. 先尝试作为文件检查（使用 HEAD 请求）
         try:
             await async_ops.head_object(
                 bucket=self.bucket,
@@ -142,7 +156,19 @@ class S3Path(BasePath):
             return True
         except aiohttp.ClientResponseError as e:
             if e.status == 404:
-                return False
+                # 2. 如果文件不存在，尝试作为文件夹检查（使用 LIST 请求）
+                prefix = self.key if self.key.endswith("/") else f"{self.key}/"
+                response = await async_ops.list_objects(
+                    bucket=self.bucket,
+                    prefix=prefix,
+                    endpoint=self.endpoint_url,
+                    region=self.region_name,
+                    access_key=self.aws_access_key_id,
+                    secret_key=self.aws_secret_access_key,
+                    max_keys=1,  # 只需要检查是否有对象，1个就够了
+                )
+                # 如果有任何对象或子文件夹，则认为该文件夹存在
+                return response.get("KeyCount", 0) > 0
             raise
 
     def iterdir(self) -> Iterator["S3Path"]:

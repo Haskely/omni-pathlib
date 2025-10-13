@@ -347,3 +347,150 @@ async def test_s3_path_async_exists_404_handling(
             aiohttp.ClientResponseError
         ):  # 应该引发异常，因为错误码不是 404
             await path.async_exists()
+
+
+def test_s3_folder_exists(test_bucket: str, s3_config: Dict[str, str]) -> None:
+    """测试 S3 文件夹的 exists 检测"""
+    # 创建一些文件来形成文件夹结构
+    files = [
+        "folder1/file1.txt",
+        "folder1/file2.txt",
+        "folder1/subfolder/file3.txt",
+        "folder2/file4.txt",
+    ]
+
+    for file_path in files:
+        path = S3Path(
+            f"s3://{test_bucket}/{file_path}",
+            endpoint_url=s3_config["endpoint_url"],
+            region_name=s3_config["region_name"],
+            aws_access_key_id=s3_config["aws_access_key_id"],
+            aws_secret_access_key=s3_config["aws_secret_access_key"],
+        )
+        path.write_text("content")
+
+    # 测试文件夹存在（不带尾部斜杠）
+    folder1 = S3Path(
+        f"s3://{test_bucket}/folder1",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert folder1.exists(), "folder1 should exist"
+
+    # 测试文件夹存在（带尾部斜杠）
+    folder1_slash = S3Path(
+        f"s3://{test_bucket}/folder1/",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert folder1_slash.exists(), "folder1/ should exist"
+
+    # 测试子文件夹存在
+    subfolder = S3Path(
+        f"s3://{test_bucket}/folder1/subfolder",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert subfolder.exists(), "folder1/subfolder should exist"
+
+    # 测试不存在的文件夹
+    non_existent_folder = S3Path(
+        f"s3://{test_bucket}/non_existent_folder",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert not non_existent_folder.exists(), "non_existent_folder should not exist"
+
+    # 测试文件的 exists（确保文件检测仍然正常工作）
+    file1 = S3Path(
+        f"s3://{test_bucket}/folder1/file1.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert file1.exists(), "folder1/file1.txt should exist"
+
+
+@pytest.mark.asyncio
+async def test_s3_folder_async_exists(
+    test_bucket: str, s3_config: Dict[str, str]
+) -> None:
+    """测试 S3 文件夹的异步 exists 检测"""
+    # 创建一些文件来形成文件夹结构
+    files = [
+        "async_folder1/file1.txt",
+        "async_folder1/file2.txt",
+        "async_folder1/subfolder/file3.txt",
+        "async_folder2/file4.txt",
+    ]
+
+    for file_path in files:
+        path = S3Path(
+            f"s3://{test_bucket}/{file_path}",
+            endpoint_url=s3_config["endpoint_url"],
+            region_name=s3_config["region_name"],
+            aws_access_key_id=s3_config["aws_access_key_id"],
+            aws_secret_access_key=s3_config["aws_secret_access_key"],
+        )
+        await path.async_write_text("content")
+
+    # 测试文件夹存在（不带尾部斜杠）
+    folder1 = S3Path(
+        f"s3://{test_bucket}/async_folder1",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert await folder1.async_exists(), "async_folder1 should exist"
+
+    # 测试文件夹存在（带尾部斜杠）
+    folder1_slash = S3Path(
+        f"s3://{test_bucket}/async_folder1/",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert await folder1_slash.async_exists(), "async_folder1/ should exist"
+
+    # 测试子文件夹存在
+    subfolder = S3Path(
+        f"s3://{test_bucket}/async_folder1/subfolder",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert await subfolder.async_exists(), "async_folder1/subfolder should exist"
+
+    # 测试不存在的文件夹
+    non_existent_folder = S3Path(
+        f"s3://{test_bucket}/async_non_existent_folder",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert not await non_existent_folder.async_exists(), (
+        "async_non_existent_folder should not exist"
+    )
+
+    # 测试文件的 async_exists（确保文件检测仍然正常工作）
+    file1 = S3Path(
+        f"s3://{test_bucket}/async_folder1/file1.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    assert await file1.async_exists(), "async_folder1/file1.txt should exist"
