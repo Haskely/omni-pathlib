@@ -137,26 +137,18 @@ jobs:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
-      # 提取对应版本的 changelog 内容
-      - name: Extract changelog for this version
-        id: changelog
-        uses: mindsers/changelog-reader-action@32aa5b4cfe387de84131c6a0c8865de9a2f3c7c1 # v2.2.3
-        with:
-          version: ${{ github.ref_name }}
-          path: ./CHANGELOG.md
-      # 创建 GitHub Release 并上传文件
-      - name: Create GitHub Release with changelog
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+      # 使用 GitHub 自动生成 release notes（基于 PR 和 commit 历史）
+      - name: Create GitHub Release with auto-generated notes
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changes }}
           draft: false
           prerelease: false
           files: |
             dist/**
           fail_on_unmatched_files: true
-          generate_release_notes: false  # 使用 CHANGELOG.md 的内容而不是自动生成
+          generate_release_notes: true  # 让 GitHub 自动根据 PR 和 commit 生成 release notes
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI

@@ -35,11 +35,26 @@
 
 1. 设置 tag，本例为 `v0.0.1`，具体执行 `git tag v0.0.1` 和 `git push origin v0.0.1`
 2. 等待 Workflow 执行完成
+3. GitHub 会自动生成 Release Notes，基于：
+   - 合并的 Pull Requests
+   - Commit 历史
+   - Contributors 贡献
 
 ### 4. 验证
 
 1. 打开 https://test.pypi.org/project/omni-pathlib/
 2. 打开 https://pypi.org/project/omni-pathlib/
+3. 查看 GitHub Releases 页面，确认 Release Notes 已自动生成
+
+### 5. Release Notes 说明
+
+该工作流使用 GitHub 的自动生成 Release Notes 功能，它会：
+- 自动分类 PR（Features、Bug Fixes、Breaking Changes 等）
+- 列出所有贡献者
+- 显示完整的更改列表
+- 无需手动维护 CHANGELOG.md 文件
+
+如需自定义 Release Notes 格式，可以在仓库中创建 `.github/release.yml` 配置文件。
 
 ## Dependabot 自动合并
 
