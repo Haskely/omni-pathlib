@@ -1,3 +1,9 @@
+## v0.6.0 (2025-10-14)
+
+### Feat
+
+- add copy support for path providers
+
 ## v0.5.1 (2025-10-13)
 
 ### Fix
