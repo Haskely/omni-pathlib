@@ -5,7 +5,7 @@ from datetime import datetime
 from omni_pathlib.providers.local import LocalPath
 import os
 import hashlib
-from typing import Optional, Tuple, cast, Dict
+from typing import AsyncIterator, Iterator, Optional, Tuple, cast, Dict
 
 from omni_pathlib.utils.raise_for_status_with_text import (
     curl_cffi_raise_for_status_with_text,
@@ -55,11 +55,12 @@ class HttpPath(BasePath):
         except requests.RequestsError:
             return False
 
-    def iterdir(self):  # type: ignore
+    def iterdir(self) -> Iterator["HttpPath"]:
         raise NotImplementedError(f"{self.path} does not support iterdir")
 
-    async def async_iterdir(self):  # type: ignore
+    async def async_iterdir(self) -> AsyncIterator["HttpPath"]:
         raise NotImplementedError(f"{self.path} does not support async_iterdir")
+        yield  # type: ignore[misc]
 
     def stat(self) -> FileInfo:
         response = self.session.head(self.path)
@@ -203,3 +204,11 @@ class HttpPath(BasePath):
 
     async def async_delete(self) -> None:
         raise NotImplementedError(f"{self.path} does not support async_delete")
+
+    def copy(self, dest: "BasePath | str") -> None:
+        """HTTP 路径不支持复制操作"""
+        raise NotImplementedError(f"{self.path} does not support copy")
+
+    async def async_copy(self, dest: "BasePath | str") -> None:
+        """HTTP 路径不支持异步复制操作"""
+        raise NotImplementedError(f"{self.path} does not support async_copy")

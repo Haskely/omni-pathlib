@@ -494,3 +494,98 @@ async def test_s3_folder_async_exists(
         aws_secret_access_key=s3_config["aws_secret_access_key"],
     )
     assert await file1.async_exists(), "async_folder1/file1.txt should exist"
+
+
+def test_s3_path_copy(test_bucket: str, s3_config: Dict[str, str]) -> None:
+    """测试 S3Path 的 copy 方法"""
+    # 创建源文件
+    source_path = S3Path(
+        f"s3://{test_bucket}/copy_test_source.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    source_content = "这是要复制的内容"
+    source_path.write_text(source_content)
+    assert source_path.exists()
+
+    # 测试复制到另一个路径（使用 S3Path 对象）
+    dest_path = S3Path(
+        f"s3://{test_bucket}/copy_test_dest.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    source_path.copy(dest_path)
+
+    # 验证目标文件存在且内容一致
+    assert dest_path.exists()
+    assert dest_path.read_text() == source_content
+
+    # 测试复制到字符串路径
+    dest_str_path = S3Path(
+        f"s3://{test_bucket}/copy_test_dest_str.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    source_path.copy(f"s3://{test_bucket}/copy_test_dest_str.txt")
+
+    assert dest_str_path.exists()
+    assert dest_str_path.read_text() == source_content
+
+    # 清理测试文件
+    source_path.delete()
+    dest_path.delete()
+    dest_str_path.delete()
+
+
+@pytest.mark.asyncio
+async def test_s3_path_async_copy(test_bucket: str, s3_config: Dict[str, str]) -> None:
+    """测试 S3Path 的 async_copy 方法"""
+    # 创建源文件
+    source_path = S3Path(
+        f"s3://{test_bucket}/async_copy_test_source.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    source_content = "这是要异步复制的内容"
+    await source_path.async_write_text(source_content)
+    assert await source_path.async_exists()
+
+    # 测试异步复制到另一个路径（使用 S3Path 对象）
+    dest_path = S3Path(
+        f"s3://{test_bucket}/async_copy_test_dest.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    await source_path.async_copy(dest_path)
+
+    # 验证目标文件存在且内容一致
+    assert await dest_path.async_exists()
+    assert await dest_path.async_read_text() == source_content
+
+    # 测试异步复制到字符串路径
+    dest_str_path = S3Path(
+        f"s3://{test_bucket}/async_copy_test_dest_str.txt",
+        endpoint_url=s3_config["endpoint_url"],
+        region_name=s3_config["region_name"],
+        aws_access_key_id=s3_config["aws_access_key_id"],
+        aws_secret_access_key=s3_config["aws_secret_access_key"],
+    )
+    await source_path.async_copy(f"s3://{test_bucket}/async_copy_test_dest_str.txt")
+
+    assert await dest_str_path.async_exists()
+    assert await dest_str_path.async_read_text() == source_content
+
+    # 清理测试文件
+    await source_path.async_delete()
+    await dest_path.async_delete()
+    await dest_str_path.async_delete()

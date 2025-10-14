@@ -364,6 +364,66 @@ class S3Path(BasePath):
             secret_key=self.aws_secret_access_key,
         )
 
+    def copy(self, dest: "BasePath | str") -> None:
+        """复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        if isinstance(dest, str):
+            dest = S3Path(
+                dest,
+                profile_name=self.profile_name,
+                endpoint_url=self.endpoint_url,
+                region_name=self.region_name,
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+            )
+
+        if not isinstance(dest, S3Path):
+            raise TypeError(f"dest must be S3Path or str, got {type(dest)}")
+
+        sync_ops.copy_object(
+            source_bucket=self.bucket,
+            source_key=self.key,
+            dest_bucket=dest.bucket,
+            dest_key=dest.key,
+            endpoint=self.endpoint_url,
+            region=self.region_name,
+            access_key=self.aws_access_key_id,
+            secret_key=self.aws_secret_access_key,
+        )
+
+    async def async_copy(self, dest: "BasePath | str") -> None:
+        """异步复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        if isinstance(dest, str):
+            dest = S3Path(
+                dest,
+                profile_name=self.profile_name,
+                endpoint_url=self.endpoint_url,
+                region_name=self.region_name,
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+            )
+
+        if not isinstance(dest, S3Path):
+            raise TypeError(f"dest must be S3Path or str, got {type(dest)}")
+
+        await async_ops.copy_object(
+            source_bucket=self.bucket,
+            source_key=self.key,
+            dest_bucket=dest.bucket,
+            dest_key=dest.key,
+            endpoint=self.endpoint_url,
+            region=self.region_name,
+            access_key=self.aws_access_key_id,
+            secret_key=self.aws_secret_access_key,
+        )
+
 
 if __name__ == "__main__":
     import asyncio

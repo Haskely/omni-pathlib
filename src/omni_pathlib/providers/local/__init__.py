@@ -83,6 +83,41 @@ class LocalPath(BasePath):
     async def async_delete(self) -> None:
         await self.async_path.unlink()
 
+    def copy(self, dest: "BasePath | str") -> None:
+        """复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        import shutil
+
+        if isinstance(dest, str):
+            dest_path = dest
+        elif isinstance(dest, LocalPath):
+            dest_path = dest.path
+        else:
+            raise TypeError(f"dest must be LocalPath or str, got {type(dest)}")
+
+        shutil.copy2(self.path, dest_path)
+
+    async def async_copy(self, dest: "BasePath | str") -> None:
+        """异步复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        import shutil
+
+        if isinstance(dest, str):
+            dest_path = dest
+        elif isinstance(dest, LocalPath):
+            dest_path = dest.path
+        else:
+            raise TypeError(f"dest must be LocalPath or str, got {type(dest)}")
+
+        # anyio 不支持文件复制，使用同步方法
+        shutil.copy2(self.path, dest_path)
+
     def is_dir(self) -> bool:
         return self.path_obj.is_dir()
 

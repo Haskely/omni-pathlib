@@ -360,6 +360,60 @@ async def head_object(
             }
 
 
+async def copy_object(
+    source_bucket: str,
+    source_key: str,
+    dest_bucket: str,
+    dest_key: str,
+    endpoint: str,
+    region: str,
+    access_key: str,
+    secret_key: str,
+    is_sign_payload: bool = DEFAULT_IS_SIGN_PAYLOAD,
+) -> bool:
+    """
+    复制 S3 对象到新位置
+
+    Args:
+        source_bucket: 源存储桶名称
+        source_key: 源对象键名
+        dest_bucket: 目标存储桶名称
+        dest_key: 目标对象键名
+        endpoint: S3 endpoint
+        region: AWS 区域
+        access_key: AWS access key
+        secret_key: AWS secret key
+        is_sign_payload: 是否使用签名的 payload
+
+    Returns:
+        bool: 复制是否成功
+    """
+    host, uri = _prepare_request_params(dest_bucket, dest_key, endpoint)
+
+    # S3 CopyObject 需要使用 x-amz-copy-source header
+    copy_source = f"/{source_bucket}/{source_key}"
+    extra_headers = {"x-amz-copy-source": copy_source}
+
+    signed_headers = sign_request(
+        method="PUT",
+        host=host,
+        region=region,
+        access_key=access_key,
+        secret_key=secret_key,
+        uri=uri,
+        headers=extra_headers,
+        payload=b"" if is_sign_payload else None,
+    )
+
+    async with aiohttp.ClientSession() as session:
+        async with session.put(
+            urljoin(endpoint, str(signed_headers["signed_url"])),
+            headers=cast(dict[str, str], signed_headers["headers"]),
+        ) as response:
+            await aiohttp_raise_for_status_with_text(response)
+            return response.status == 200
+
+
 async def delete_object(
     bucket: str,
     key: str,
@@ -641,12 +695,54 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"创建存储桶失败: {str(e)}")
 
+    async def test_copy_object():
+        """测试复制对象"""
+        print("\n测试复制对象:")
+        source_key = f"{TEST_PREFIX}file1.txt"
+        dest_key = f"{TEST_PREFIX}file1_copy.txt"
+
+        try:
+            # 复制对象
+            success = await copy_object(
+                source_bucket=bucket,
+                source_key=source_key,
+                dest_bucket=bucket,
+                dest_key=dest_key,
+                endpoint=endpoint,
+                region=region,
+                access_key=ak,
+                secret_key=sk,
+            )
+            print(
+                f"复制文件 {source_key} 到 {dest_key} {'成功' if success else '失败'}"
+            )
+
+            # 验证复制的文件存在
+            metadata = await head_object(bucket, dest_key, endpoint, region, ak, sk)
+            print(f"复制后的文件元数据: {metadata}")
+
+            # 验证内容一致
+            source_content = await download_file(
+                bucket, source_key, endpoint, region, ak, sk
+            )
+            dest_content = await download_file(
+                bucket, dest_key, endpoint, region, ak, sk
+            )
+            if source_content == dest_content:
+                print("验证成功：源文件和目标文件内容一致")
+            else:
+                print("验证失败：源文件和目标文件内容不一致")
+
+        except Exception as e:
+            print(f"复制测试失败: {str(e)}")
+
     async def run_all_tests():
         """运行所有测试"""
         try:
             await setup_test_env()
             await test_listdir()
             await test_head_and_download()
+            await test_copy_object()
             await test_delete_operations()
         finally:
             await cleanup_test_env()

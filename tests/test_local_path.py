@@ -147,3 +147,56 @@ def test_local_path_join(temp_dir: str) -> None:
     # 测试连续斜杠的处理
     slash_path = base_path / "subdir/" / "/file.txt"
     assert str(slash_path) == "/file.txt"
+
+
+def test_local_path_copy(temp_dir: str, test_file: str) -> None:
+    """测试 LocalPath 的 copy 方法"""
+    # 创建源文件
+    source_path = LocalPath(test_file)
+    source_content = source_path.read_text()
+
+    # 测试复制到另一个路径（使用 LocalPath 对象）
+    dest_path = LocalPath(os.path.join(temp_dir, "copy_dest.txt"))
+    source_path.copy(dest_path)
+
+    # 验证目标文件存在且内容一致
+    assert dest_path.exists()
+    assert dest_path.read_text() == source_content
+
+    # 测试复制到字符串路径
+    dest_str_path = os.path.join(temp_dir, "copy_dest_str.txt")
+    source_path.copy(dest_str_path)
+
+    assert LocalPath(dest_str_path).exists()
+    assert LocalPath(dest_str_path).read_text() == source_content
+
+    # 清理测试文件
+    dest_path.delete()
+    LocalPath(dest_str_path).delete()
+
+
+@pytest.mark.asyncio
+async def test_local_path_async_copy(temp_dir: str, test_file: str) -> None:
+    """测试 LocalPath 的 async_copy 方法"""
+    # 创建源文件
+    source_path = LocalPath(test_file)
+    source_content = await source_path.async_read_text()
+
+    # 测试异步复制到另一个路径（使用 LocalPath 对象）
+    dest_path = LocalPath(os.path.join(temp_dir, "async_copy_dest.txt"))
+    await source_path.async_copy(dest_path)
+
+    # 验证目标文件存在且内容一致
+    assert await dest_path.async_exists()
+    assert await dest_path.async_read_text() == source_content
+
+    # 测试异步复制到字符串路径
+    dest_str_path = os.path.join(temp_dir, "async_copy_dest_str.txt")
+    await source_path.async_copy(dest_str_path)
+
+    assert await LocalPath(dest_str_path).async_exists()
+    assert await LocalPath(dest_str_path).async_read_text() == source_content
+
+    # 清理测试文件
+    await dest_path.async_delete()
+    await LocalPath(dest_str_path).async_delete()

@@ -210,6 +210,24 @@ class BasePath(ABC):
         """异步删除文件"""
         pass
 
+    @abstractmethod
+    def copy(self: T, dest: T | str) -> None:
+        """复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        pass
+
+    @abstractmethod
+    async def async_copy(self: T, dest: T | str) -> None:
+        """异步复制文件到目标路径
+
+        Args:
+            dest: 目标路径，可以是路径对象或字符串
+        """
+        pass
+
     def mkdir(self, parents: bool = False, exist_ok: bool = False) -> None:
         """创建目录"""
         pass
